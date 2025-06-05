@@ -16,6 +16,7 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 # But not vercel.json
 !vercel.json
+!package.json
 
 # Runtime data
 pids
