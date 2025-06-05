@@ -30,6 +30,10 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+app.get("/", (req, res) => {
+    res.json({ message: "Express app is running" });
+});
+
 // Mount routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
