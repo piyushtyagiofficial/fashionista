@@ -18,7 +18,7 @@ import NotFound from "./pages/NotFound";
 import PrivateRoute from "./components/routing/PrivateRoute";
 import SellerRoute from "./components/routing/SellerRoute";
 import Chatbot from "./components/chat/Chatbot";
-import WishlistPage from "./pages/WishListPage";
+import WishlistPage from "./pages/WishlistPage";
 import "./App.css";
 
 function App() {
