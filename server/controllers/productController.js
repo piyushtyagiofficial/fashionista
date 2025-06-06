@@ -108,6 +108,86 @@ export const getProductById = async (req, res) => {
   }
 };
 
+// @desc    Update product stock after purchase
+// @route   PUT /api/products/:id/stock
+// @access  Private
+export const updateProductStock = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { purchasedSizes } = req.body;
+
+    console.log(`Updating stock for product ${productId}:`, purchasedSizes);
+
+    if (!productId || !Array.isArray(purchasedSizes)) {
+      return res.status(400).json({ message: 'Invalid input data' });
+    }
+
+    const product = await Product.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    console.log('Current product sizes before update:', product.sizes);
+
+    // Update stock for each purchased size
+    for (const item of purchasedSizes) {
+      const { size, quantity } = item;
+
+      console.log(`Processing size: ${size}, quantity: ${quantity}`);
+
+      if (!size || !quantity || quantity <= 0) {
+        return res.status(400).json({ message: 'Invalid size or quantity' });
+      }
+
+      const sizeObj = product.sizes.find((s) => s.size === size);
+
+      if (!sizeObj) {
+        return res.status(400).json({ message: `Size ${size} not found in product.` });
+      }
+
+      console.log(`Current stock for size ${size}: ${sizeObj.countInStock}`);
+
+      if (sizeObj.countInStock < quantity) {
+        return res.status(400).json({ 
+          message: `Insufficient stock for size ${size}. Available: ${sizeObj.countInStock}, Requested: ${quantity}` 
+        });
+      }
+
+      // Reduce stock by the exact quantity purchased
+      sizeObj.countInStock -= quantity;
+      
+      // Ensure stock doesn't go below 0
+      if (sizeObj.countInStock < 0) {
+        sizeObj.countInStock = 0;
+      }
+
+      console.log(`Updated stock for size ${size}: ${sizeObj.countInStock}`);
+    }
+
+    await product.save();
+
+    console.log('Product sizes after update:', product.sizes);
+    console.log(`Stock update completed for product ${productId}`);
+
+    res.status(200).json({
+      message: 'Stock updated successfully',
+      updatedSizes: purchasedSizes,
+      product: {
+        _id: product._id,
+        name: product.name,
+        sizes: product.sizes
+      }
+    });
+  } catch (error) {
+    console.error('Stock update failed:', error);
+    res.status(500).json({ 
+      message: 'Failed to update stock',
+      error: error.message 
+    });
+  }
+};
+
 // @desc    Create a product
 // @route   POST /api/products
 // @access  Private/Seller

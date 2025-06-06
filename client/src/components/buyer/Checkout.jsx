@@ -37,6 +37,56 @@ function Checkout() {
     });
   };
 
+  const updateProductStock = async () => {
+    try {
+      console.log('Starting stock update for cart items:', cartItems);
+      
+      // Group cart items by product ID and aggregate quantities by size
+      const productUpdates = {};
+      
+      cartItems.forEach(item => {
+        const productId = item._id;
+        const size = item.size;
+        const quantity = item.qty;
+        
+        console.log(`Processing item: ${item.name}, Size: ${size}, Qty: ${quantity}`);
+        
+        if (!productUpdates[productId]) {
+          productUpdates[productId] = {};
+        }
+        
+        if (!productUpdates[productId][size]) {
+          productUpdates[productId][size] = 0;
+        }
+        
+        // Add the quantity for this size
+        productUpdates[productId][size] += quantity;
+      });
+
+      console.log('Grouped product updates:', productUpdates);
+
+      // Update stock for each product
+      const updatePromises = Object.entries(productUpdates).map(([productId, sizeQuantities]) => {
+        const purchasedSizes = Object.entries(sizeQuantities).map(([size, totalQuantity]) => ({
+          size,
+          quantity: totalQuantity
+        }));
+        
+        console.log(`Updating stock for product ${productId}:`, purchasedSizes);
+        
+        return api.put(`/products/${productId}/stock`, { purchasedSizes });
+      });
+
+      await Promise.all(updatePromises);
+      console.log('Stock updated successfully for all products');
+      
+    } catch (error) {
+      console.error('Failed to update stock:', error);
+      // Don't throw error here as payment was successful
+      toast.warning('Payment successful but stock update failed. Please contact support.');
+    }
+  };
+
   const handlePayment = async (orderId) => {
     const res = await initializeRazorpay();
 
@@ -61,17 +111,25 @@ function Checkout() {
         order_id: order_id,
         handler: async (response) => {
           try {
+            // Verify payment first
             await api.put(`/orders/${orderId}/pay`, {
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
             });
 
+            console.log('Payment verified successfully, now updating stock...');
+
+            // Update product stock ONLY after successful payment verification
+            await updateProductStock();
+
+            // Clear cart and redirect
             clearCart();
-            toast.success("Payment successful!");
+            toast.success("Payment successful! Your order has been placed.");
             navigate("/buyer/orders");
           } catch (err) {
-            toast.error("Payment verification failed");
+            console.error('Payment verification failed:', err);
+            toast.error("Payment verification failed. Please contact support.");
           }
         },
         prefill: {
@@ -82,6 +140,12 @@ function Checkout() {
         theme: {
           color: "#3b44ac",
         },
+        modal: {
+          ondismiss: function() {
+            toast.info("Payment cancelled");
+            setLoading(false);
+          }
+        }
       };
 
       const paymentObject = new window.Razorpay(options);
@@ -89,6 +153,7 @@ function Checkout() {
     } catch (err) {
       toast.error("Failed to initiate payment");
       console.error("Payment error:", err);
+      setLoading(false);
     }
   };
 
@@ -98,6 +163,26 @@ function Checkout() {
     try {
       setLoading(true);
       setError(null);
+
+      // Validate cart items stock before creating order
+      for (const item of cartItems) {
+        try {
+          const response = await api.get(`/products/${item._id}`);
+          const product = response.data;
+          const sizeData = product.sizes.find(s => s.size === item.size);
+          
+          if (!sizeData || sizeData.countInStock < item.qty) {
+            throw new Error(`Insufficient stock for ${item.name} (Size: ${item.size}). Only ${sizeData?.countInStock || 0} available.`);
+          }
+        } catch (stockError) {
+          setError(stockError.message);
+          toast.error(stockError.message);
+          setLoading(false);
+          return;
+        }
+      }
+
+      console.log('Creating order with cart items:', cartItems);
 
       const orderData = {
         orderItems: cartItems.map((item) => ({
@@ -118,12 +203,16 @@ function Checkout() {
         totalPrice: cartTotal + cartTotal * 0.1,
       };
 
+      console.log('Order data being sent:', orderData);
+
       const response = await api.post("/orders", orderData);
+      console.log('Order created successfully:', response.data._id);
+      
       await handlePayment(response.data._id);
     } catch (err) {
+      console.error('Order creation failed:', err);
       setError(err.response?.data?.message || "Failed to create order");
       toast.error("Failed to create order");
-    } finally {
       setLoading(false);
     }
   };

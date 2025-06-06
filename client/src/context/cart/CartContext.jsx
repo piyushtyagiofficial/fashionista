@@ -1,4 +1,6 @@
 import { createContext, useState, useEffect, useContext } from 'react';
+import { toast } from 'react-toastify';
+import api from '../../utils/api'; 
 
 export const CartContext = createContext();
 
@@ -18,7 +20,12 @@ export const CartProvider = ({ children }) => {
   useEffect(() => {
     const savedCart = localStorage.getItem('cartItems');
     if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
+      try {
+        setCartItems(JSON.parse(savedCart));
+      } catch (error) {
+        console.error('Error parsing cart items:', error);
+        localStorage.removeItem('cartItems');
+      }
     }
   }, []);
 
@@ -26,23 +33,60 @@ export const CartProvider = ({ children }) => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
-  const addToCart = (item) => {
+  const checkStock = async (productId, size, requestedQty) => {
+    try {
+      const response = await api.get(`/products/${productId}`);
+      const product = response.data;
+      const sizeData = product.sizes.find(s => s.size === size);
+      
+      if (!sizeData) {
+        throw new Error('Size not found');
+      }
+      
+      return sizeData.countInStock >= requestedQty;
+    } catch (error) {
+      console.error('Error checking stock:', error);
+      return false;
+    }
+  };
+
+  const addToCart = async (item) => {
     setError(null);
     
-    const existingItem = cartItems.find(
-      (x) => x._id === item._id && x.size === item.size && x.color === item.color
-    );
+    try {
+      // Check stock before adding
+      const hasStock = await checkStock(item._id, item.size, item.qty);
+      if (!hasStock) {
+        toast.error('Insufficient stock for this item');
+        return;
+      }
 
-    if (existingItem) {
-      setCartItems(
-        cartItems.map((x) =>
-          x._id === item._id && x.size === item.size && x.color === item.color
-            ? { ...x, qty: x.qty + item.qty }
-            : x
-        )
+      const existingItem = cartItems.find(
+        (x) => x._id === item._id && x.size === item.size && x.color === item.color
       );
-    } else {
-      setCartItems([...cartItems, item]);
+
+      if (existingItem) {
+        const newQty = existingItem.qty + item.qty;
+        const hasStockForNewQty = await checkStock(item._id, item.size, newQty);
+        
+        if (!hasStockForNewQty) {
+          toast.error(`Only ${existingItem.qty} more items available in stock`);
+          return;
+        }
+
+        setCartItems(
+          cartItems.map((x) =>
+            x._id === item._id && x.size === item.size && x.color === item.color
+              ? { ...x, qty: newQty }
+              : x
+          )
+        );
+      } else {
+        setCartItems([...cartItems, item]);
+      }
+    } catch (error) {
+      setError('Failed to add item to cart');
+      toast.error('Failed to add item to cart');
     }
   };
 
@@ -53,15 +97,27 @@ export const CartProvider = ({ children }) => {
     );
   };
 
-  const updateCartQuantity = (id, size, color, qty) => {
+  const updateCartQuantity = async (id, size, color, qty) => {
     setError(null);
     if (qty < 1) return;
     
-    setCartItems(
-      cartItems.map((x) =>
-        x._id === id && x.size === size && x.color === color ? { ...x, qty } : x
-      )
-    );
+    try {
+      // Check stock before updating
+      const hasStock = await checkStock(id, size, qty);
+      if (!hasStock) {
+        toast.error('Insufficient stock for requested quantity');
+        return;
+      }
+
+      setCartItems(
+        cartItems.map((x) =>
+          x._id === id && x.size === size && x.color === color ? { ...x, qty } : x
+        )
+      );
+    } catch (error) {
+      setError('Failed to update cart');
+      toast.error('Failed to update cart');
+    }
   };
 
   const clearCart = () => {

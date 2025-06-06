@@ -31,7 +31,7 @@ export const ProductProvider = ({ children }) => {
       
       const response = await api.get('/products', {
         params: {
-          featured: true,
+          isFeatured: true,
           pageSize: 8
         }
       });
@@ -54,7 +54,7 @@ export const ProductProvider = ({ children }) => {
       
       const response = await api.get('/products', {
         params: {
-          newArrival: true,
+          isNew: true,
           pageSize: 8
         }
       });

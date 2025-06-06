@@ -114,7 +114,28 @@ export const createOrder = async (req, res) => {
       return res.status(400).json({ message: 'No order items' });
     }
 
-    // Create order in database
+    console.log('Creating order with items:', orderItems);
+
+    // Validate stock availability before creating order
+    for (const item of orderItems) {
+      const product = await Product.findById(item.product);
+      if (!product) {
+        return res.status(404).json({ message: `Product ${item.name} not found` });
+      }
+
+      const sizeIndex = product.sizes.findIndex(s => s.size === item.size);
+      if (sizeIndex === -1) {
+        return res.status(400).json({ message: `Size ${item.size} not available for ${item.name}` });
+      }
+
+      if (product.sizes[sizeIndex].countInStock < item.qty) {
+        return res.status(400).json({ 
+          message: `Insufficient stock for ${item.name} (Size: ${item.size}). Only ${product.sizes[sizeIndex].countInStock} available.` 
+        });
+      }
+    }
+
+    // Create order in database (without updating stock yet)
     const order = new Order({
       orderItems: orderItems.map(item => ({
         ...item,
@@ -130,21 +151,14 @@ export const createOrder = async (req, res) => {
     });
 
     const createdOrder = await order.save();
+    console.log('Order created successfully:', createdOrder._id);
 
-    // Update product stock
-    for (const item of orderItems) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        const sizeIndex = product.sizes.findIndex(s => s.size === item.size);
-        if (sizeIndex !== -1) {
-          product.sizes[sizeIndex].countInStock -= item.qty;
-          await product.save();
-        }
-      }
-    }
+    // NOTE: Stock will be updated after successful payment verification
+    // This prevents stock reduction for failed payments
 
     res.status(201).json(createdOrder);
   } catch (error) {
+    console.error('Order creation error:', error);
     res.status(400).json({ message: error.message });
   }
 };

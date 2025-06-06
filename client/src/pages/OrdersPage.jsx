@@ -101,10 +101,10 @@ const OrdersPage = () => {
       order.taxPrice -
       order.shippingPrice
     ).toFixed(2);
-    doc.text(`Items: $${itemsPrice}`, 14, 86);
-    doc.text(`Tax: $${order.taxPrice}`, 14, 94);
-    doc.text(`Shipping: $${order.shippingPrice}`, 14, 102);
-    doc.text(`Total: $${order.totalPrice}`, 14, 110);
+    doc.text(`Items: Rs. ${itemsPrice}`, 14, 86);
+    doc.text(`Tax: Rs. ${order.taxPrice}`, 14, 94);
+    doc.text(`Shipping: Rs. ${order.shippingPrice}`, 14, 102);
+    doc.text(`Total: Rs. ${order.totalPrice}`, 14, 110);
 
     // Order Items Table
     autoTable(doc, {
@@ -115,7 +115,7 @@ const OrdersPage = () => {
         item.size,
         item.color,
         item.qty,
-        `$${item.price.toFixed(2)}`,
+        `Rs. ${item.price.toFixed(2)}`,
       ]),
     });
 
@@ -183,7 +183,7 @@ const OrdersPage = () => {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className="text-sm text-gray-900">
-                        ${order.totalPrice.toFixed(2)}
+                        ₹{order.totalPrice.toFixed(2)}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -253,15 +253,15 @@ const OrdersPage = () => {
                     <h3 className="font-semibold mb-2">Order Summary</h3>
                     <div className="bg-gray-50 p-4 rounded">
                       <p>
-                        Items Price: $
+                        Items Price: ₹
                         {selectedOrder.totalPrice -
                           selectedOrder.taxPrice -
                           selectedOrder.shippingPrice}
                       </p>
-                      <p>Tax: ${selectedOrder.taxPrice}</p>
-                      <p>Shipping: ${selectedOrder.shippingPrice}</p>
+                      <p>Tax: ₹{selectedOrder.taxPrice}</p>
+                      <p>Shipping: ₹{selectedOrder.shippingPrice}</p>
                       <p className="font-bold mt-2">
-                        Total: ${selectedOrder.totalPrice}
+                        Total: ₹{selectedOrder.totalPrice}
                       </p>
                     </div>
                   </div>
@@ -291,7 +291,7 @@ const OrdersPage = () => {
                         </div>
                         <div className="text-right">
                           <p className="font-medium">
-                            ${item.price.toFixed(2)}
+                            ₹{item.price.toFixed(2)}
                           </p>
                         </div>
                       </div>

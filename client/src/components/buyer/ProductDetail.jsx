@@ -1,58 +1,65 @@
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { useCart } from '../../context/cart/CartContext';
-import { FaShoppingCart, FaStar } from 'react-icons/fa';
-import Loader from '../common/Loader';
-import { toast } from 'react-toastify';
-import api from '../../utils/api';
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import { useCart } from "../../context/cart/CartContext";
+import { FaShoppingCart, FaStar } from "react-icons/fa";
+import Loader from "../common/Loader";
+import ProductReviews from "./ProductReviews";
+import { toast } from "react-toastify";
+import api from "../../utils/api";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [selectedColor, setSelectedColor] = useState('');
+  const [selectedSize, setSelectedSize] = useState("");
+  const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [mainImage, setMainImage] = useState('');
+  const [mainImage, setMainImage] = useState("");
+
+  const fetchProduct = async () => {
+    try {
+      const response = await api.get(`/products/${id}`);
+      const data = response.data;
+      setProduct(data);
+      setMainImage(data.images[0]);
+      if (data.sizes.length > 0) {
+        setSelectedSize(data.sizes[0].size);
+      }
+      if (data.colors.length > 0) {
+        setSelectedColor(data.colors[0].color);
+      }
+    } catch (error) {
+      console.error("Error fetching product:", error);
+      toast.error("Failed to load product details");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await api.get(`/products/${id}`);
-        const data = response.data;
-        setProduct(data);
-        console.log(response);
-        setMainImage(data.images[0]);
-        if (data.sizes.length > 0) {
-          setSelectedSize(data.sizes[0].size);
-        }
-        if (data.colors.length > 0) {
-          setSelectedColor(data.colors[0].color);
-        }
-      } catch (error) {
-        console.error('Error fetching product:', error);
-        toast.error('Failed to load product details');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchProduct();
   }, [id]);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
     if (!selectedSize || !selectedColor) {
-      toast.error('Please select size and color');
+      toast.error("Please select size and color");
+      return;
+    }
+
+    // Get stock info for selected size
+    const selectedSizeData = product.sizes.find((s) => s.size === selectedSize);
+    if (!selectedSizeData || selectedSizeData.countInStock < quantity) {
+      toast.error(`Only ${Math.max(0, selectedSizeData.countInStock) || 0} items available in stock`);
       return;
     }
 
     if (!product.seller) {
-      toast.error('Product information is incomplete');
+      toast.error("Product information is incomplete");
       return;
     }
 
-    addToCart({
+    await addToCart({
       _id: product._id,
       name: product.name,
       price: product.price,
@@ -61,14 +68,21 @@ const ProductDetail = () => {
       size: selectedSize,
       color: selectedColor,
       qty: quantity,
-      seller: product.seller._id || product.seller
+      seller: product.seller._id || product.seller,
     });
-    
-    toast.success('Added to cart successfully!');
+  };
+
+  const handleReviewAdded = () => {
+    // Refresh product data to get updated reviews
+    fetchProduct();
   };
 
   if (loading) return <Loader />;
-  if (!product) return <div className="text-center py-8">Product not found</div>;
+  if (!product)
+    return <div className="text-center py-8">Product not found</div>;
+
+  const selectedSizeData = product.sizes.find((s) => s.size === selectedSize);
+  const maxQuantity = selectedSizeData?.countInStock || 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -88,7 +102,7 @@ const ProductDetail = () => {
                 key={index}
                 onClick={() => setMainImage(image)}
                 className={`aspect-w-1 aspect-h-1 ${
-                  mainImage === image ? 'ring-2 ring-primary-main' : ''
+                  mainImage === image ? "ring-2 ring-primary-main" : ""
                 }`}
               >
                 <img
@@ -113,18 +127,24 @@ const ProductDetail = () => {
               {[...Array(5)].map((_, i) => (
                 <FaStar
                   key={i}
-                  className={i < Math.floor(product.rating) ? 'text-yellow-400' : 'text-gray-300'}
+                  className={
+                    i < Math.floor(product.rating)
+                      ? "text-yellow-400"
+                      : "text-gray-300"
+                  }
                 />
               ))}
             </div>
-            <span className="text-gray-500">({product.numReviews} reviews)</span>
+            <span className="text-gray-500">
+              ({product.numReviews} reviews)
+            </span>
           </div>
 
           <div className="text-2xl font-bold text-gray-900">
-            ${(product.salePrice || product.price).toFixed(2)}
+            ₹{(product.salePrice || product.price).toFixed(2)}
             {product.salePrice > 0 && (
               <span className="ml-2 text-lg line-through text-gray-500">
-                ${product.price.toFixed(2)}
+                ₹{product.price.toFixed(2)}
               </span>
             )}
           </div>
@@ -143,12 +163,19 @@ const ProductDetail = () => {
                   onClick={() => setSelectedSize(size.size)}
                   className={`py-2 px-4 rounded-md ${
                     selectedSize === size.size
-                      ? 'bg-primary-700 text-white'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                  } ${size.countInStock === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      ? "bg-primary-700 text-white"
+                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
+                  } ${
+                    size.countInStock === 0
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
+                  }`}
                   disabled={size.countInStock === 0}
                 >
                   {size.size}
+                  {size.countInStock === 0 && (
+                    <span className="block text-xs">Out of Stock</span>
+                  )}
                 </button>
               ))}
             </div>
@@ -162,7 +189,9 @@ const ProductDetail = () => {
                   key={color.color}
                   onClick={() => setSelectedColor(color.color)}
                   className={`w-full h-10 rounded-md border-2 ${
-                    selectedColor === color.color ? 'border-primary-main' : 'border-transparent'
+                    selectedColor === color.color
+                      ? "border-primary-main"
+                      : "border-transparent"
                   }`}
                   style={{ backgroundColor: color.colorCode }}
                   title={color.color}
@@ -177,29 +206,51 @@ const ProductDetail = () => {
               <button
                 onClick={() => setQuantity(Math.max(1, quantity - 1))}
                 className="p-2 rounded-md bg-gray-100 hover:bg-gray-200"
+                disabled={quantity <= 1}
               >
                 -
               </button>
               <span className="text-lg font-medium">{quantity}</span>
               <button
-                onClick={() => setQuantity(quantity + 1)}
+                onClick={() => {
+                  if (quantity < maxQuantity) {
+                    setQuantity(quantity + 1);
+                  } else {
+                    toast.error(`Only ${maxQuantity} items available in stock`);
+                  }
+                }}
                 className="p-2 rounded-md bg-gray-100 hover:bg-gray-200"
+                disabled={quantity >= maxQuantity}
               >
                 +
               </button>
             </div>
+            {selectedSizeData && (
+              <p className="text-sm text-gray-500 mt-1">
+                {Math.max(0, selectedSizeData.countInStock)} items available
+              </p>
+            )}
           </div>
 
           <button
             onClick={handleAddToCart}
-            disabled={!selectedSize || !selectedColor}
+            disabled={!selectedSize || !selectedColor || maxQuantity === 0}
             className="w-full flex items-center justify-center space-x-2 bg-primary-700 text-white py-3 px-6 rounded-md hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <FaShoppingCart />
-            <span>Add to Cart</span>
+            <span>
+              {maxQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
+            </span>
           </button>
         </div>
       </div>
+
+      {/* Reviews Section */}
+      <ProductReviews 
+        productId={product._id} 
+        reviews={product.reviews} 
+        onReviewAdded={handleReviewAdded}
+      />
     </div>
   );
 };
