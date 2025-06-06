@@ -1,10 +1,12 @@
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Slider from 'react-slick';
 import { ProductContext } from '../context/product/ProductContext';
-import ProductCard from '../components/common/ProductCard';
 import Loader from '../components/common/Loader';
+
+// Lazy load ProductCard component
+const ProductCard = lazy(() => import('../components/common/ProductCard'));
 
 const Home = () => {
   const {
@@ -29,7 +31,6 @@ const Home = () => {
 
     fetchData();
   }, [getFeaturedProducts, getNewArrivals]);
-
   const heroSliderSettings = {
     dots: true,
     infinite: true,
@@ -38,7 +39,10 @@ const Home = () => {
     slidesToScroll: 1,
     autoplay: true,
     autoplaySpeed: 5000,
-    pauseOnHover: true
+    pauseOnHover: true,
+    lazyLoad: true,
+    cssEase: "cubic-bezier(0.87, 0.03, 0.41, 0.9)",
+    useTransform: true
   };
 
   const productSliderSettings = {
@@ -90,18 +94,18 @@ const Home = () => {
       name: 'Accessories',
       image: 'https://images.pexels.com/photos/1078973/pexels-photo-1078973.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
     }
-  ];
-
-  return (
-    <div className="min-h-screen">
-      {/* Hero Section */}
-      <section className="relative">
-        <Slider {...heroSliderSettings}>
+  ];  return (
+    <div className="min-h-screen w-full overflow-hidden">
+      {/* Hero Section */}<section className="relative w-full overflow-hidden">
+        <Slider {...heroSliderSettings} className="w-full overflow-hidden">
           <div className="relative h-[80vh] min-h-[500px]">
             <img
+              loading="lazy"
               src="https://images.pexels.com/photos/1536619/pexels-photo-1536619.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
               alt="Summer Collection"
               className="w-full h-full object-cover"
+              width="1260"
+              height="750"
             />
             <div className="absolute inset-0 bg-black/50 flex items-center">
               <div className="container mx-auto px-4">
@@ -147,7 +151,7 @@ const Home = () => {
       </section>
 
       {/* Categories Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 w-full">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Shop by Category</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -173,8 +177,8 @@ const Home = () => {
       </section>
 
       {/* Featured Products Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-16 w-full">
+        <div className="container mx-auto px-4 overflow-hidden">
           <h2 className="text-3xl font-bold text-center mb-12">Featured Products</h2>
           {featuredLoading ? (
             <div className="flex justify-center">
@@ -185,17 +189,19 @@ const Home = () => {
               {featuredError}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {featuredProducts.map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              <Suspense fallback={<Loader />}>
+                {featuredProducts.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </Suspense>
             </div>
           )}
         </div>
       </section>
 
       {/* Banner Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 w-full">
         <div className="container mx-auto px-4">
           <div className="relative rounded-lg overflow-hidden">
             <img
@@ -219,8 +225,8 @@ const Home = () => {
       </section>
 
       {/* New Arrivals Section */}
-      <section className="py-16">
-        <div className="container mx-auto px-4">
+      <section className="py-16 w-full">
+        <div className="container mx-auto px-4 overflow-hidden">
           <h2 className="text-3xl font-bold text-center mb-12">New Arrivals</h2>
           {newArrivalsLoading ? (
             <div className="flex justify-center">
@@ -231,17 +237,19 @@ const Home = () => {
               {newArrivalsError}
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {newArrivals.slice(0, 8).map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
+              <Suspense fallback={<Loader />}>
+                {newArrivals.slice(0, 8).map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </Suspense>
             </div>
           )}
         </div>
       </section>
 
       {/* Features Section */}
-      <section className="py-16 bg-gray-50">
+      <section className="py-16 bg-gray-50 w-full">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="text-center p-6">

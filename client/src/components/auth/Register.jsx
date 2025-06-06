@@ -160,12 +160,10 @@ const Register = () => {
 
           <div className="form-group">
             <label className="block mb-3">Account Type</label>
-            <div className="grid grid-cols-2 gap-4">
-              <label
-                className={`flex items-center justify-center gap-2 p-3 border rounded-md cursor-pointer transition-all ${
+            <div className="grid grid-cols-2 gap-4">              <label                className={`flex items-center justify-center gap-2 p-3 border rounded-md cursor-pointer transition-all ${
                   role === 'buyer'
-                    ? 'border-primary-main bg-primary-light/10 text-primary-dark'
-                    : 'border-neutral-300 text-neutral-600'
+                    ? 'border-[#1A237E] bg-[#1A237E] text-white'
+                    : 'border-neutral-300 text-neutral-600 hover:bg-gray-50'
                 }`}
               >
                 <input
@@ -182,8 +180,8 @@ const Register = () => {
               <label
                 className={`flex items-center justify-center gap-2 p-3 border rounded-md cursor-pointer transition-all ${
                   role === 'seller'
-                    ? 'border-primary-main bg-primary-light/10 text-primary-dark'
-                    : 'border-neutral-300 text-neutral-600'
+                    ? 'border-[#1A237E] bg-[#1A237E] text-white'
+                    : 'border-neutral-300 text-neutral-600 hover:bg-gray-50'
                 }`}
               >
                 <input

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaHeart, FaRegHeart, FaShoppingCart, FaStar } from 'react-icons/fa';
 import { useAuth } from '../../context/auth/AuthContext.jsx';
@@ -6,7 +6,7 @@ import { useCart } from '../../context/cart/CartContext.jsx';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 
-const ProductCard = ({ product }) => {
+const ProductCard = memo(({ product }) => {
   const { isAuthenticated, user, addToWishlist, removeFromWishlist } = useAuth();
   const { addToCart } = useCart();
   const [isWishlisted, setIsWishlisted] = useState(
@@ -87,8 +87,10 @@ const ProductCard = ({ product }) => {
           <img
             src={product.images[0]}
             alt={product.name}
-            className="w-full h-full object-cover transition-transform duration-500"
-            style={{ transform: isHovered ? 'scale(1.05)' : 'scale(1)' }}
+            loading="lazy"
+            className="absolute top-0 left-0 w-full h-full object-cover"
+            width="300"
+            height="300"
           />
           
           {isAuthenticated && user.role === 'buyer' && (
@@ -204,6 +206,8 @@ const ProductCard = ({ product }) => {
       </Link>
     </motion.div>
   );
-};
+});
+
+ProductCard.displayName = 'ProductCard';
 
 export default ProductCard;

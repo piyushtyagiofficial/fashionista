@@ -30,9 +30,9 @@
   html {
     font-family: 'Inter', system-ui, sans-serif;
   }
-
   body {
-    @apply bg-gray-50;
+    @apply bg-gray-50 overflow-x-hidden;
+    max-width: 100vw;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -74,15 +74,18 @@
   }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  @apply w-2;
+/* Hide scrollbars while allowing scrolling */
+* {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
 }
 
-::-webkit-scrollbar-track {
-  @apply bg-gray-100;
+*::-webkit-scrollbar {
+  display: none !important; /* Chrome, Safari and Opera */
 }
 
-::-webkit-scrollbar-thumb {
-  @apply bg-primary-300 rounded-full hover:bg-primary-400;
+/* Ensure proper viewport containment */
+html, body {
+  max-width: 100vw;
+  overflow-x: hidden;
 }

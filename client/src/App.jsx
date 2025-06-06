@@ -34,100 +34,102 @@ function App() {
   }, [location.pathname]);
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <main className="flex-grow pt-20">
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/product/:id" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/products" element={<ProductsPage />} />
+    <div className="relative w-full overflow-x-hidden">
+      <div className="flex flex-col min-h-screen">
+        <Navbar />
+        <main className="flex-grow pt-20">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/products" element={<ProductsPage />} />
 
-          {/* Private Routes (Buyer) */}
-          <Route
-            path="/checkout"
-            element={
-              <PrivateRoute>
-                <CheckoutPage />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/buyer/dashboard"
-            element={
-              <PrivateRoute>
-                <BuyerDashboard />
-              </PrivateRoute>
-            }
-          />
-          <Route
-            path="/buyer/orders"
-            element={
-              <PrivateRoute>
-                <OrdersPage userType="buyer" />
-              </PrivateRoute>
-            }
-          />
+            {/* Private Routes (Buyer) */}
+            <Route
+              path="/checkout"
+              element={
+                <PrivateRoute>
+                  <CheckoutPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/buyer/dashboard"
+              element={
+                <PrivateRoute>
+                  <BuyerDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/buyer/orders"
+              element={
+                <PrivateRoute>
+                  <OrdersPage userType="buyer" />
+                </PrivateRoute>
+              }
+            />
 
-          <Route
-            path="/buyer/wishlist"
-            element={
-              <PrivateRoute>
-                <WishlistPage userType="buyer" />
-              </PrivateRoute>
-            }
-          />
+            <Route
+              path="/buyer/wishlist"
+              element={
+                <PrivateRoute>
+                  <WishlistPage userType="buyer" />
+                </PrivateRoute>
+              }
+            />
 
-          {/* Seller Routes */}
-          <Route
-            path="/seller/dashboard"
-            element={
-              <SellerRoute>
-                <SellerDashboard />
-              </SellerRoute>
-            }
-          />
-          <Route
-            path="/seller/orders"
-            element={
-              <SellerRoute>
-                <OrdersPage userType="seller" />
-              </SellerRoute>
-            }
-          />
-          <Route
-            path="/seller/products"
-            element={
-              <SellerRoute>
-                <ProductsPage />
-              </SellerRoute>
-            }
-          />
-          <Route
-            path="/seller/products/new"
-            element={
-              <SellerRoute>
-                <ProductFormPage />
-              </SellerRoute>
-            }
-          />
-          <Route
-            path="/seller/products/:id/edit"
-            element={
-              <SellerRoute>
-                <ProductFormPage />
-              </SellerRoute>
-            }
-          />
+            {/* Seller Routes */}
+            <Route
+              path="/seller/dashboard"
+              element={
+                <SellerRoute>
+                  <SellerDashboard />
+                </SellerRoute>
+              }
+            />
+            <Route
+              path="/seller/orders"
+              element={
+                <SellerRoute>
+                  <OrdersPage userType="seller" />
+                </SellerRoute>
+              }
+            />
+            <Route
+              path="/seller/products"
+              element={
+                <SellerRoute>
+                  <ProductsPage />
+                </SellerRoute>
+              }
+            />
+            <Route
+              path="/seller/products/new"
+              element={
+                <SellerRoute>
+                  <ProductFormPage />
+                </SellerRoute>
+              }
+            />
+            <Route
+              path="/seller/products/:id/edit"
+              element={
+                <SellerRoute>
+                  <ProductFormPage />
+                </SellerRoute>
+              }
+            />
 
-          {/* 404 Page */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-      <Chatbot />
-      <Footer />
+            {/* 404 Page */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </main>
+        <Chatbot />
+        <Footer />
+      </div>
     </div>
   );
 }
