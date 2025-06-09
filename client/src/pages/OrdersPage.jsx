@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "../context/auth/AuthContext";
-import { FaSearch, FaEye } from "react-icons/fa";
+import { FaSearch, FaEye, FaDownload } from "react-icons/fa";
 import Loader from "../components/common/Loader";
 import api from "../utils/api";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
-import { FaDownload } from "react-icons/fa";
 
 const OrdersPage = () => {
   const { user } = useAuth();
@@ -66,18 +65,6 @@ const OrdersPage = () => {
     }
   };
 
-  if (loading) return <Loader />;
-
-  if (error) {
-    return (
-      <div className="text-center py-8">
-        <div className="bg-red-100 text-red-700 p-4 rounded-lg inline-block">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   const downloadPDF = (order) => {
     const doc = new jsPDF();
     doc.setFontSize(16);
@@ -122,23 +109,35 @@ const OrdersPage = () => {
     doc.save(`Order_${order._id}.pdf`);
   };
 
+  if (loading) return <Loader />;
+
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <div className="bg-red-100 text-red-700 p-4 rounded-lg inline-block">
+          {error}
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="bg-white rounded-lg shadow-sm">
-        <div className="p-6 border-b">
+    <div className="bg-black text-white overflow-hidden">
+      <div className="container mx-auto px-4 py-8">
+        <div className="bg-gray-800 rounded shadow-sm p-6 mb-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <h1 className="text-2xl font-bold">
+            <h1 className="text-2xl font-bold text-gray-400">
               {user?.role === "seller" ? "Manage Orders" : "My Orders"}
             </h1>
 
-            <div className="relative">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <div className="relative w-full max-w-xs">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400" />
               <input
                 type="text"
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="pl-10 pr-4 py-2 rounded border border-gray-700 bg-gray-900 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-600"
               />
             </div>
           </div>
@@ -147,44 +146,38 @@ const OrdersPage = () => {
         {filteredOrders.length === 0 ? (
           <div className="text-center py-8 text-gray-500">No orders found</div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
+          <div className="overflow-x-auto rounded-md shadow-md">
+            <table className="w-full border-collapse border border-gray-700">
+              <thead className="bg-gray-900 text-gray-400">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider border-b border-gray-700">
                     Order ID
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider border-b border-gray-700">
                     Date
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider border-b border-gray-700">
                     Total
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider border-b border-gray-700">
                     Status
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider border-b border-gray-700">
                     Details
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-gray-800 divide-y divide-gray-700 text-gray-200">
                 {filteredOrders.map((order) => (
-                  <tr key={order._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                        {order._id}
-                      </span>
+                  <tr key={order._id} className="hover:bg-gray-700 transition-colors duration-200">
+                    <td className="px-6 py-4 whitespace-nowrap font-mono text-sm">
+                      {order._id}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-500">
-                        {new Date(order.createdAt).toLocaleDateString()}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {new Date(order.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        ₹{order.totalPrice.toFixed(2)}
-                      </span>
+                    <td className="px-6 py-4 whitespace-nowrap font-semibold text-sm">
+                      ₹{order.totalPrice.toFixed(2)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -196,10 +189,10 @@ const OrdersPage = () => {
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-4">
                         <button
                           onClick={() => fetchOrderDetails(order._id)}
-                          className="flex items-center justify-center text-blue-600 hover:text-blue-800 transition"
+                          className="flex items-center justify-center text-primary-400 hover:text-primary-600 transition duration-200"
                           title="View Details"
                         >
                           <FaEye className="w-5 h-5" />
@@ -207,11 +200,11 @@ const OrdersPage = () => {
 
                         <button
                           onClick={() => downloadPDF(order)}
-                          className="flex items-center gap-1 bg-blue-100 hover:bg-blue-200 text-blue-800 px-2 py-1 rounded-md text-xs sm:text-sm transition duration-200"
+                          className="flex items-center gap-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded-md text-xs sm:text-sm transition duration-200"
                           title="Download PDF"
                         >
                           <FaDownload className="w-4 h-4" />
-                          <span className="hidden sm:inline">PDF</span>
+                          <span className="hidden sm:inline">Invoice</span>
                         </button>
                       </div>
                     </td>
@@ -221,88 +214,101 @@ const OrdersPage = () => {
             </table>
           </div>
         )}
-      </div>
 
-      {/* Order Details Modal */}
-      {showDetails && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Order Details</h2>
-                <button
-                  onClick={() => setShowDetails(false)}
-                  className="text-gray-500 hover:text-gray-700"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h3 className="font-semibold mb-2">Shipping Information</h3>
-                    <div className="bg-gray-50 p-4 rounded">
-                      <p>{selectedOrder.shippingAddress.address}</p>
-                      <p>{selectedOrder.shippingAddress.city}</p>
-                      <p>{selectedOrder.shippingAddress.postalCode}</p>
-                      <p>{selectedOrder.shippingAddress.country}</p>
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="font-semibold mb-2">Order Summary</h3>
-                    <div className="bg-gray-50 p-4 rounded">
-                      <p>
-                        Items Price: ₹
-                        {selectedOrder.totalPrice -
-                          selectedOrder.taxPrice -
-                          selectedOrder.shippingPrice}
-                      </p>
-                      <p>Tax: ₹{selectedOrder.taxPrice}</p>
-                      <p>Shipping: ₹{selectedOrder.shippingPrice}</p>
-                      <p className="font-bold mt-2">
-                        Total: ₹{selectedOrder.totalPrice}
-                      </p>
-                    </div>
-                  </div>
+        {/* Order Details Modal */}
+        {showDetails && selectedOrder && (
+          <div className="fixed inset-0 backdrop-blur-md bg-black/70 flex items-center justify-center p-4 z-50">
+            <div
+              className="bg-gray-900 border border-gray-700 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-fadeIn text-gray-200"
+              style={{ boxShadow: "0 8px 32px rgba(0, 0, 0, 0.4)" }}
+            >
+              <div className="relative p-8">
+                <div className="flex justify-between items-center mb-8">
+                  <h2 className="text-3xl font-bold tracking-wide">Order Details</h2>
+                  <button
+                    onClick={() => setShowDetails(false)}
+                    className="text-4xl font-bold text-gray-500 hover:text-gray-300 transition duration-300"
+                    aria-label="Close modal"
+                  >
+                    &times;
+                  </button>
                 </div>
 
-                <div>
-                  <h3 className="font-semibold mb-4">Order Items</h3>
-                  <div className="space-y-4">
-                    {selectedOrder.orderItems.map((item) => (
-                      <div
-                        key={`${item._id}-${item.size}-${item.color}`}
-                        className="flex items-center gap-4 border-b pb-4"
-                      >
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-20 h-20 object-cover rounded"
-                        />
-                        <div className="flex-1">
-                          <h4 className="font-medium">{item.name}</h4>
-                          <p className="text-sm text-gray-600">
-                            Size: {item.size} | Color: {item.color}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Quantity: {item.qty}
-                          </p>
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">
+                        Shipping Information
+                      </h3>
+                      <div className="bg-gray-800 border border-gray-700 p-6 rounded-xl space-y-1 text-sm shadow-inner">
+                        <p>{selectedOrder.shippingAddress.address}</p>
+                        <p>{selectedOrder.shippingAddress.city}</p>
+                        <p>{selectedOrder.shippingAddress.postalCode}</p>
+                        <p>{selectedOrder.shippingAddress.country}</p>
+                      </div>
+                    </div>
+
+                    <div>
+                      <h3 className="text-lg font-semibold mb-4">Order Summary</h3>
+                      <div className="bg-gray-800 border border-gray-700 p-6 rounded-xl space-y-3 text-sm shadow-inner">
+                        <div className="flex justify-between">
+                          <span>Items Price:</span>
+                          <span>
+                            ₹
+                            {selectedOrder.totalPrice -
+                              selectedOrder.taxPrice -
+                              selectedOrder.shippingPrice}
+                          </span>
                         </div>
-                        <div className="text-right">
-                          <p className="font-medium">
-                            ₹{item.price.toFixed(2)}
-                          </p>
+                        <div className="flex justify-between">
+                          <span>Tax:</span>
+                          <span>₹{selectedOrder.taxPrice}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Shipping:</span>
+                          <span>₹{selectedOrder.shippingPrice}</span>
+                        </div>
+                        <div className="flex justify-between font-bold text-lg pt-3 border-t border-gray-700 mt-3">
+                          <span>Total:</span>
+                          <span>₹{selectedOrder.totalPrice}</span>
                         </div>
                       </div>
-                    ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Order Items</h3>
+                    <div className="space-y-4">
+                      {selectedOrder.orderItems.map((item) => (
+                        <div
+                          key={`${item._id}-${item.size}-${item.color}`}
+                          className="flex items-center gap-6 p-4 rounded-xl border border-gray-700 bg-gray-800 shadow-md"
+                        >
+                          <img
+                            src={item.image}
+                            alt={item.name}
+                            className="w-24 h-24 object-cover rounded-lg border border-gray-600 shadow-sm"
+                          />
+                          <div className="flex-1 space-y-1 text-sm text-gray-300">
+                            <h4 className="font-semibold text-base">{item.name}</h4>
+                            <p>
+                              Size: {item.size} | Color: {item.color}
+                            </p>
+                            <p>Quantity: {item.qty}</p>
+                          </div>
+                          <div className="text-right font-semibold text-base text-white">
+                            ₹{item.price.toFixed(2)}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

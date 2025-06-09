@@ -70,6 +70,7 @@ const ProductDetail = () => {
       qty: quantity,
       seller: product.seller._id || product.seller,
     });
+    toast.success('Added to cart successfully!'); // Added toast for success
   };
 
   const handleReviewAdded = () => {
@@ -79,178 +80,181 @@ const ProductDetail = () => {
 
   if (loading) return <Loader />;
   if (!product)
-    return <div className="text-center py-8">Product not found</div>;
+    return <div className="text-center py-8 text-white">Product not found</div>;
 
   const selectedSizeData = product.sizes.find((s) => s.size === selectedSize);
   const maxQuantity = selectedSizeData?.countInStock || 0;
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {/* Product Images */}
-        <div className="space-y-4">
-          <div className="aspect-w-1 aspect-h-1 w-full">
-            <img
-              src={mainImage}
-              alt={product.name}
-              className="w-full h-full object-cover rounded-lg"
-            />
-          </div>
-          <div className="grid grid-cols-4 gap-2">
-            {product.images.map((image, index) => (
-              <button
-                key={index}
-                onClick={() => setMainImage(image)}
-                className={`aspect-w-1 aspect-h-1 ${
-                  mainImage === image ? "ring-2 ring-primary-main" : ""
-                }`}
-              >
-                <img
-                  src={image}
-                  alt={`${product.name} view ${index + 1}`}
-                  className="w-full h-full object-cover rounded-md"
-                />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Product Info */}
-        <div className="space-y-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">{product.name}</h1>
-            <p className="text-lg text-gray-500">{product.brand}</p>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <div className="flex text-yellow-400">
-              {[...Array(5)].map((_, i) => (
-                <FaStar
-                  key={i}
-                  className={
-                    i < Math.floor(product.rating)
-                      ? "text-yellow-400"
-                      : "text-gray-300"
-                  }
-                />
-              ))}
+    <div className="min-h-screen bg-black py-12 px-4">
+      <div className="max-w-7xl mx-auto bg-gray-900 rounded-xl shadow-xl p-8 md:p-12 text-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+          {/* Product Images */}
+          <div className="space-y-6">
+            <div className="aspect-w-1 aspect-h-1 w-full rounded-lg overflow-hidden shadow-lg border border-gray-700">
+              <img
+                src={mainImage}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
             </div>
-            <span className="text-gray-500">
-              ({product.numReviews} reviews)
-            </span>
-          </div>
-
-          <div className="text-2xl font-bold text-gray-900">
-            ₹{(product.salePrice || product.price).toFixed(2)}
-            {product.salePrice > 0 && (
-              <span className="ml-2 text-lg line-through text-gray-500">
-                ₹{product.price.toFixed(2)}
-              </span>
-            )}
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Description</h3>
-            <p className="mt-2 text-gray-500">{product.description}</p>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Select Size</h3>
-            <div className="grid grid-cols-4 gap-2 mt-2">
-              {product.sizes.map((size) => (
+            <div className="grid grid-cols-4 gap-3">
+              {product.images.map((image, index) => (
                 <button
-                  key={size.size}
-                  onClick={() => setSelectedSize(size.size)}
-                  className={`py-2 px-4 rounded-md ${
-                    selectedSize === size.size
-                      ? "bg-primary-700 text-white"
-                      : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                  } ${
-                    size.countInStock === 0
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
+                  key={index}
+                  onClick={() => setMainImage(image)}
+                  className={`aspect-w-1 aspect-h-1 rounded-md overflow-hidden focus:outline-none transition ring-offset-2 ring-offset-black ${
+                    mainImage === image
+                      ? 'ring-4 ring-cyan-500' // Selected image ring
+                      : 'ring-transparent hover:ring-2 hover:ring-cyan-400' // Hover effect
                   }`}
-                  disabled={size.countInStock === 0}
                 >
-                  {size.size}
-                  {size.countInStock === 0 && (
-                    <span className="block text-xs">Out of Stock</span>
-                  )}
+                  <img
+                    src={image}
+                    alt={`${product.name} view ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
                 </button>
               ))}
             </div>
           </div>
 
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Select Color</h3>
-            <div className="grid grid-cols-4 gap-2 mt-2">
-              {product.colors.map((color) => (
+          {/* Product Info */}
+          <div className="space-y-8">
+            <div>
+              <h1 className="text-4xl font-extrabold text-white">{product.name}</h1>
+              <p className="text-xl text-cyan-400 font-semibold mt-1">{product.brand}</p>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <div className="flex text-yellow-400 text-lg">
+                {[...Array(5)].map((_, i) => (
+                  <FaStar
+                    key={i}
+                    className={
+                      i < Math.floor(product.rating)
+                        ? 'text-yellow-400'
+                        : 'text-gray-700' // Changed for dark background
+                    }
+                  />
+                ))}
+              </div>
+              <span className="text-gray-400 text-lg">
+                ({product.numReviews} reviews)
+              </span>
+            </div>
+
+            <div className="text-3xl font-extrabold text-white">
+              ₹{(product.salePrice || product.price).toFixed(2)}
+              {product.salePrice > 0 && (
+                <span className="ml-3 text-xl line-through text-gray-500">
+                  ₹{product.price.toFixed(2)}
+                </span>
+              )}
+            </div>
+
+            <div className="bg-gray-800 p-5 rounded-lg shadow-inner border border-gray-700">
+              <h3 className="text-2xl font-semibold text-cyan-400">Description</h3>
+              <p className="mt-3 text-gray-300">{product.description}</p>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-2">Select Size</h3>
+              <div className="grid grid-cols-4 gap-4">
+                {product.sizes.map((size) => (
+                  <button
+                    key={size.size}
+                    onClick={() => setSelectedSize(size.size)}
+                    disabled={size.countInStock === 0}
+                    className={`py-3 px-6 rounded-lg font-semibold transition-colors duration-300 focus:outline-none ${
+                      size.countInStock === 0
+                        ? 'opacity-40 cursor-not-allowed bg-gray-700 text-gray-500'
+                        : selectedSize === size.size
+                        ? 'bg-cyan-600 text-white shadow-lg' // Selected color
+                        : 'bg-gray-800 text-gray-200 hover:bg-gray-700' // Default and hover colors
+                    }`}
+                  >
+                    {size.size}
+                    {size.countInStock === 0 && (
+                      <span className="block text-xs">Out of Stock</span>
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-2">Select Color</h3>
+              <div className="grid grid-cols-4 gap-4">
+                {product.colors.map((color) => (
+                  <button
+                    key={color.color}
+                    onClick={() => setSelectedColor(color.color)}
+                    title={color.color}
+                    className={`w-full h-12 rounded-lg border-2 transition-shadow duration-300 focus:outline-none ${
+                      selectedColor === color.color
+                        ? 'ring-4 ring-cyan-400 shadow-lg' // Selected color ring
+                        : 'ring-0 border-gray-700' // Default border
+                    }`}
+                    style={{ backgroundColor: color.colorCode }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold text-white mb-2">Quantity</h3>
+              <div className="flex items-center space-x-5">
                 <button
-                  key={color.color}
-                  onClick={() => setSelectedColor(color.color)}
-                  className={`w-full h-10 rounded-md border-2 ${
-                    selectedColor === color.color
-                      ? "border-primary-main"
-                      : "border-transparent"
-                  }`}
-                  style={{ backgroundColor: color.colorCode }}
-                  title={color.color}
-                />
-              ))}
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-white"
+                  disabled={quantity <= 1}
+                >
+                  -
+                </button>
+                <span className="text-xl font-semibold">{quantity}</span>
+                <button
+                  onClick={() => {
+                    if (quantity < maxQuantity) {
+                      setQuantity(quantity + 1);
+                    } else {
+                      toast.error(`Only ${maxQuantity} items available in stock`);
+                    }
+                  }}
+                  className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-white"
+                  disabled={quantity >= maxQuantity}
+                >
+                  +
+                </button>
+              </div>
+              {selectedSizeData && (
+                <p className="text-sm text-gray-500 mt-2">
+                  {Math.max(0, selectedSizeData.countInStock)} items available
+                </p>
+              )}
             </div>
-          </div>
 
-          <div>
-            <h3 className="text-lg font-medium text-gray-900">Quantity</h3>
-            <div className="flex items-center space-x-4 mt-2">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                className="p-2 rounded-md bg-gray-100 hover:bg-gray-200"
-                disabled={quantity <= 1}
-              >
-                -
-              </button>
-              <span className="text-lg font-medium">{quantity}</span>
-              <button
-                onClick={() => {
-                  if (quantity < maxQuantity) {
-                    setQuantity(quantity + 1);
-                  } else {
-                    toast.error(`Only ${maxQuantity} items available in stock`);
-                  }
-                }}
-                className="p-2 rounded-md bg-gray-100 hover:bg-gray-200"
-                disabled={quantity >= maxQuantity}
-              >
-                +
-              </button>
-            </div>
-            {selectedSizeData && (
-              <p className="text-sm text-gray-500 mt-1">
-                {Math.max(0, selectedSizeData.countInStock)} items available
-              </p>
-            )}
+            <button
+              onClick={handleAddToCart}
+              disabled={!selectedSize || !selectedColor || maxQuantity === 0}
+              className="w-full flex items-center justify-center space-x-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-4 rounded-xl shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaShoppingCart size={22} />
+              <span className="text-lg">
+                {maxQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
+              </span>
+            </button>
           </div>
-
-          <button
-            onClick={handleAddToCart}
-            disabled={!selectedSize || !selectedColor || maxQuantity === 0}
-            className="w-full flex items-center justify-center space-x-2 bg-primary-700 text-white py-3 px-6 rounded-md hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FaShoppingCart />
-            <span>
-              {maxQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
-            </span>
-          </button>
         </div>
-      </div>
 
-      {/* Reviews Section */}
-      <ProductReviews 
-        productId={product._id} 
-        reviews={product.reviews} 
-        onReviewAdded={handleReviewAdded}
-      />
+        {/* Reviews Section */}
+        {/* Assuming ProductReviews component itself will adapt to dark theme or needs similar styling updates */}
+        <ProductReviews
+          productId={product._id}
+          reviews={product.reviews}
+          onReviewAdded={handleReviewAdded}
+        />
+      </div>
     </div>
   );
 };

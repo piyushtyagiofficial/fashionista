@@ -63,105 +63,94 @@ const Dashboard = () => {
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 text-red-600 rounded-lg">
+      <div className="p-4 bg-red-600 text-white rounded-lg text-center">
         {error}
       </div>
     );
   }
 
   return (
-    <div className="p-6">
+    <div className='bg-black'>
+   <div className="bg-black text-white">
+    <div className="px-4 py-8 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold">Welcome back, {user?.name}</h1>
-        <Link
-          to="/seller/products/new"
-          className="btn btn-primary flex items-center gap-2"
-        >
-          <FaPlus /> Add New Product
-        </Link>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-primary-light/10 rounded-full">
-              <FaBox className="text-2xl text-primary-main" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Products</p>
-              <h3 className="text-2xl font-bold">{stats.totalProducts}</h3>
-            </div>
-          </div>
+          <h1 className="text-2xl font-bold">Welcome back, {user?.name}</h1>
+          <Link
+            to="/seller/products/new"
+            className="flex items-center gap-2 px-4 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-md"
+          >
+            <FaPlus /> Add New Product
+          </Link>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-secondary-light/10 rounded-full">
-              <FaShoppingBag className="text-2xl text-secondary-main" />
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {[
+            { label: 'Total Products', value: stats.totalProducts, icon: <FaBox />, color: 'bg-gray-600' },
+            { label: 'Total Orders', value: stats.totalOrders, icon: <FaShoppingBag />, color: 'bg-gray-600' },
+            { label: 'Total Revenue', value: `₹${stats.totalRevenue.toFixed(2)}`, icon: <FaChartLine />, color: 'bg-gray-600' },
+          ].map((item, idx) => (
+            <div key={idx} className="p-6 rounded-lg shadow-sm border border-gray-600 bg-gray-700">
+              <div className="flex items-center gap-4">
+                <div className={`p-3 rounded-full ${item.color}`}>
+                  {item.icon}
+                </div>
+                <div>
+                  <p className="text-sm text-gray-400">{item.label}</p>
+                  <h3 className="text-2xl font-bold text-white">{item.value}</h3>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Orders</p>
-              <h3 className="text-2xl font-bold">{stats.totalOrders}</h3>
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-md">
-          <div className="flex items-center gap-4">
-            <div className="p-3 bg-success-light/10 rounded-full">
-              <FaChartLine className="text-2xl text-success-main" />
-            </div>
-            <div>
-              <p className="text-sm text-gray-500">Total Revenue</p>
-              <h3 className="text-2xl font-bold">${stats.totalRevenue.toFixed(2)}</h3>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-xl font-semibold mb-4">Recent Orders</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4">Order ID</th>
-                <th className="text-left py-3 px-4">Customer</th>
-                <th className="text-left py-3 px-4">Products</th>
-                <th className="text-left py-3 px-4">Total</th>
-                <th className="text-left py-3 px-4">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {stats.recentOrders.length > 0 ? (
-                stats.recentOrders.map((order) => (
-                  <tr key={order._id} className="border-b">
-                    <td className="py-3 px-4">{order._id}</td>
-                    <td className="py-3 px-4">{order.customer}</td>
-                    <td className="py-3 px-4">{order.products}</td>
-                    <td className="py-3 px-4">${order.total.toFixed(2)}</td>
-                    <td className="py-3 px-4">
-                      <span className={`px-2 py-1 rounded-full text-xs ${
-                        order.status === 'completed' ? 'bg-success-light text-success-dark' :
-                        order.status === 'pending' ? 'bg-warning-light text-warning-dark' :
-                        'bg-error-light text-error-dark'
-                      }`}>
-                        {order.status}
-                      </span>
+        {/* Recent Orders */}
+        <div className="bg-gray-700 rounded-lg shadow-sm p-6 border border-gray-600">
+          <h2 className="text-xl font-bold mb-4">Recent Orders</h2>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-gray-300">
+              <thead>
+                <tr className="border-b border-gray-600 text-gray-400">
+                  <th className="py-3 px-4">Order ID</th>
+                  <th className="py-3 px-4">Customer</th>
+                  <th className="py-3 px-4">Products</th>
+                  <th className="py-3 px-4">Total</th>
+                  <th className="py-3 px-4">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.recentOrders.length > 0 ? (
+                  stats.recentOrders.map((order) => (
+                    <tr key={order._id} className="border-b border-gray-600">
+                      <td className="py-3 px-4">{order._id}</td>
+                      <td className="py-3 px-4">{order.customer}</td>
+                      <td className="py-3 px-4">{order.products}</td>
+                      <td className="py-3 px-4">₹{order.total.toFixed(2)}</td>
+                      <td className="py-3 px-4">
+                        <span className={`px-2 py-1 rounded-full text-xs ${
+                          order.status === 'completed' ? 'bg-green-600 text-white' :
+                          order.status === 'pending' ? 'bg-yellow-600 text-white' :
+                          order.status === 'cancelled' ? 'bg-red-600 text-white' :
+                          'bg-blue-600 text-white'
+                        }`}>
+                          {order.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="5" className="py-4 text-center text-gray-400">
+                      No recent orders
                     </td>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="5" className="py-4 text-center text-gray-500">
-                    No recent orders
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+    </div>
     </div>
   );
 };

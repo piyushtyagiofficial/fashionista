@@ -52,6 +52,7 @@ const ProductCard = ({ product }) => {
     };
 
     await addToCart(cartItem);
+    toast.success("Added to cart successfully!"); // Added toast for success
   };
 
   const toggleWishlist = async (e) => {
@@ -88,9 +89,9 @@ const ProductCard = ({ product }) => {
 
   return (
     <motion.div
-      className="product-card bg-white rounded-lg overflow-hidden shadow-md h-full"
-      whileHover={{ y: -5 }}
-      transition={{ duration: 0.3 }}
+      className="product-card bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white rounded-2xl overflow-hidden shadow-lg h-full border border-gray-700 hover:border-primary-main transition duration-300"
+      whileHover={{ y: -8, scale: 1.02 }}
+      transition={{ duration: 0.4 }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -114,7 +115,7 @@ const ProductCard = ({ product }) => {
           {isAuthenticated && user.role === "buyer" && (
             <button
               onClick={toggleWishlist}
-              className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-neutral-100 transition-colors z-10"
+              className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-primary-main hover:text-white transition-colors z-10"
             >
               {isWishlisted ? (
                 <FaHeart className="text-error-main" />
@@ -126,19 +127,19 @@ const ProductCard = ({ product }) => {
 
           <div className="absolute top-2 left-2 flex flex-col gap-1">
             {isOnSale && (
-              <span className="bg-error-main text-white text-xs font-bold py-1 px-2 rounded">
+              <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-500 bg-opacity-80 text-white text-xs font-bold py-1 px-2 rounded backdrop-blur-sm shadow">
                 {discountPercentage}% OFF
               </span>
             )}
             {product.newArrival && (
-              <span className="bg-primary-main text-white text-xs font-bold py-1 px-2 rounded">
+              <span className="bg-gradient-to-r from-blue-500 via-blue-400 to-blue-500 bg-opacity-80 text-white text-xs font-bold py-1 px-2 rounded backdrop-blur-sm shadow">
                 NEW
               </span>
             )}
           </div>
 
           {isHovered && hasStock && (
-            <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 p-3 transform transition-transform duration-300">
+            <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 p-3 transform transition-transform duration-300 space-y-2">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex gap-1">
                   {product.sizes.slice(0, 4).map((sizeOption) => (
@@ -150,8 +151,8 @@ const ProductCard = ({ product }) => {
                       }}
                       className={`w-8 h-8 text-xs border rounded-full flex items-center justify-center ${
                         selectedSize === sizeOption.size
-                          ? "border-primary-main bg-primary-light/10 text-primary-dark"
-                          : "border-neutral-300 text-neutral-600"
+                          ? "border-primary-main bg-richblack-500 text-primary-dark"
+                          : "border-neutral-950 text-neutral-700"
                       } ${
                         sizeOption.countInStock === 0
                           ? "opacity-50 cursor-not-allowed"
@@ -187,7 +188,7 @@ const ProductCard = ({ product }) => {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedSize || !selectedColor || !hasStock}
-                className="btn btn-primary btn-sm w-full flex items-center justify-center gap-2 add-to-cart-btn disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 w-full flex items-center justify-center gap-2 add-to-cart-btn disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaShoppingCart /> Add to Cart
               </button>
@@ -195,43 +196,43 @@ const ProductCard = ({ product }) => {
           )}
         </div>
 
-        <div className="p-4">
+        <div className="p-4 space-y-2">
           <div className="flex items-center mb-1">
-            <div className="flex text-secondary-dark">
+            <div className="flex text-yellow-400">
               {[...Array(5)].map((_, i) => (
                 <FaStar
                   key={i}
                   className={
                     i < Math.floor(product.rating)
-                      ? "text-secondary-main"
-                      : "text-neutral-300"
+                      ? "text-yellow-400"
+                      : "text-gray-500"
                   }
                 />
               ))}
             </div>
-            <span className="ml-1 text-xs text-neutral-500">
+            <span className="ml-1 text-xs text-gray-400">
               ({product.numReviews})
             </span>
           </div>
 
-          <h3 className="font-medium text-primary-dark mb-1 truncate">
+          <h3 className="font-serif text-lg font-extrabold bg-gradient-to-r from-[#1FA2FF] via-[#12D8FA] to-[#A6FFCB] bg-clip-text text-transparent truncate">
             {product.name}
           </h3>
 
-          <p className="text-neutral-600 text-sm mb-1">{product.brand}</p>
+          <p className="text-gray-400 text-sm">{product.brand}</p>
 
           <div className="flex items-center gap-2">
             {isOnSale ? (
               <>
-                <span className="font-bold text-error-main">
+                <span className="font-bold text-error-main text-xl">
                   ₹{product.salePrice.toFixed(2)}
                 </span>
-                <span className="text-neutral-500 line-through text-sm">
+                <span className="text-gray-400 line-through text-sm">
                   ₹{product.price.toFixed(2)}
                 </span>
               </>
             ) : (
-              <span className="font-bold text-primary-dark">
+              <span className="font-bold text-primary-main text-xl">
                 ₹{product.price.toFixed(2)}
               </span>
             )}

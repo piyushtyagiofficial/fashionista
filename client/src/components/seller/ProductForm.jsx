@@ -50,9 +50,14 @@ const ProductForm = () => {
     try {
       const method = id ? 'put' : 'post';
       const url = id ? `/products/${id}` : '/products';
-      
-      await api[method](url, product);
-      
+
+      // Ensure 'api' is called correctly with method, url, and data
+      await api({
+        method: method,
+        url: url,
+        data: product
+      });
+
       toast.success(`Product ${id ? 'updated' : 'created'} successfully`);
       navigate('/seller/dashboard');
     } catch (error) {
@@ -65,11 +70,11 @@ const ProductForm = () => {
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-    
+
     if (files.length === 0) return;
 
     setUploadingImages(true);
-    
+
     try {
       const uploadPromises = files.map(async (file) => {
         const formData = new FormData();
@@ -85,12 +90,12 @@ const ProductForm = () => {
       });
 
       const uploadedUrls = await Promise.all(uploadPromises);
-      
+
       setProduct(prev => ({
         ...prev,
         images: [...prev.images, ...uploadedUrls]
       }));
-      
+
       toast.success('Images uploaded successfully');
     } catch (error) {
       toast.error('Failed to upload images');
@@ -135,283 +140,303 @@ const ProductForm = () => {
     }));
   };
 
-  if (loading) return <Loader />;
+  if (loading) return <div className="flex justify-center items-center h-screen"><Loader /></div>;
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-4xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-6">
-        {id ? 'Edit Product' : 'Add New Product'}
-      </h2>
+    <div className="bg-gradient-to-b from-gray-900 via-black to-gray-900 min-h-screen py-12">
+      <div className="max-w-3xl mx-auto bg-gray-900 rounded-lg shadow-xl p-8">
+        <h2 className="text-3xl font-bold text-center text-white mb-8 bg-gradient-to-r from-[#1FA2FF] via-[#12D8FA] to-[#A6FFCB] bg-clip-text text-transparent font-serif">
+          {id ? 'Edit Product' : 'Add New Product'}
+        </h2>
 
-      <div className="space-y-6">
-        {/* Basic Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* The form starts here, wrapped with onSubmit={handleSubmit} */}
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Basic Information */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Name</label>
-            <input
-              type="text"
-              value={product.name}
-              onChange={(e) => setProduct(prev => ({ ...prev, name: e.target.value }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+            <h3 className="text-lg font-semibold text-gray-300 mb-4">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-2">Name</label>
+                <input
+                  type="text"
+                  id="name"
+                  value={product.name}
+                  onChange={(e) => setProduct(prev => ({ ...prev, name: e.target.value }))}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  required
+                />
+              </div>
+
+              <div>
+                <label htmlFor="brand" className="block text-sm font-medium text-gray-400 mb-2">Brand</label>
+                <input
+                  type="text"
+                  id="brand"
+                  value={product.brand}
+                  onChange={(e) => setProduct(prev => ({ ...prev, brand: e.target.value }))}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <div>
+                <label htmlFor="category" className="block text-sm font-medium text-gray-400 mb-2">Category</label>
+                <select
+                  id="category"
+                  value={product.category}
+                  onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value }))}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  required
+                >
+                  <option value="men">Men</option>
+                  <option value="women">Women</option>
+                  <option value="kids">Kids</option>
+                  <option value="accessories">Accessories</option>
+                </select>
+              </div>
+
+              <div>
+                <label htmlFor="subcategory" className="block text-sm font-medium text-gray-400 mb-2">Subcategory</label>
+                <input
+                  type="text"
+                  id="subcategory"
+                  value={product.subcategory}
+                  onChange={(e) => setProduct(prev => ({ ...prev, subcategory: e.target.value }))}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label htmlFor="description" className="block text-sm font-medium text-gray-400 mb-2">Description</label>
+            <textarea
+              id="description"
+              value={product.description}
+              onChange={(e) => setProduct(prev => ({ ...prev, description: e.target.value }))}
+              rows={4}
+              className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
               required
             />
           </div>
 
+          {/* Pricing */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Brand</label>
-            <input
-              type="text"
-              value={product.brand}
-              onChange={(e) => setProduct(prev => ({ ...prev, brand: e.target.value }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              required
-            />
-          </div>
-        </div>
+            <h3 className="text-lg font-semibold text-gray-300 mb-4">Pricing</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label htmlFor="price" className="block text-sm font-medium text-gray-400 mb-2">Price</label>
+                <input
+                  type="number"
+                  id="price"
+                  value={product.price}
+                  onChange={(e) => setProduct(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  required
+                  min="0"
+                  step="0.01"
+                />
+              </div>
 
-        {/* Category and Subcategory */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Category</label>
-            <select
-              value={product.category}
-              onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              required
-            >
-              <option value="men">Men</option>
-              <option value="women">Women</option>
-              <option value="kids">Kids</option>
-              <option value="accessories">Accessories</option>
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Subcategory</label>
-            <input
-              type="text"
-              value={product.subcategory}
-              onChange={(e) => setProduct(prev => ({ ...prev, subcategory: e.target.value }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              required
-            />
-          </div>
-        </div>
-
-        {/* Description */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Description</label>
-          <textarea
-            value={product.description}
-            onChange={(e) => setProduct(prev => ({ ...prev, description: e.target.value }))}
-            rows={4}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-            required
-          />
-        </div>
-
-        {/* Pricing */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">Price</label>
-            <input
-              type="number"
-              value={product.price}
-              onChange={(e) => setProduct(prev => ({ ...prev, price: parseFloat(e.target.value) }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              required
-              min="0"
-              step="0.01"
-            />
+              <div>
+                <label htmlFor="salePrice" className="block text-sm font-medium text-gray-400 mb-2">Sale Price (Optional)</label>
+                <input
+                  type="number"
+                  id="salePrice"
+                  value={product.salePrice}
+                  onChange={(e) => setProduct(prev => ({ ...prev, salePrice: parseFloat(e.target.value) }))}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+            </div>
           </div>
 
+          {/* Images */}
           <div>
-            <label className="block text-sm font-medium text-gray-700">Sale Price</label>
-            <input
-              type="number"
-              value={product.salePrice}
-              onChange={(e) => setProduct(prev => ({ ...prev, salePrice: parseFloat(e.target.value) }))}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              min="0"
-              step="0.01"
-            />
+            <h3 className="text-lg font-semibold text-gray-300 mb-4 flex items-center justify-between">
+              Images
+              <span className="text-sm text-gray-500">PNG, JPG up to 5MB</span>
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+              {product.images.map((image, index) => (
+                <div key={index} className="relative rounded-md overflow-hidden">
+                  <img
+                    src={image}
+                    alt={`Product ${index + 1}`}
+                    className="w-full h-32 object-cover border border-gray-700"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-2 right-2 bg-red-600 text-white p-1 rounded-full hover:bg-red-700 transition-colors"
+                  >
+                    <FaTimes className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-700 border-dashed rounded-md bg-gray-800">
+              <div className="space-y-1 text-center">
+                {uploadingImages ? (
+                  <Loader size="sm" />
+                ) : (
+                  <>
+                    <FaUpload className="mx-auto h-12 w-12 text-gray-400" />
+                    <div className="flex text-sm text-gray-400">
+                      <label className="relative cursor-pointer rounded-md font-medium text-[#A6FFCB] hover:text-[#12D8FA] focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-[#12D8FA] bg-gray-800 p-1">
+                        <span>Upload images</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          multiple
+                          accept="image/*"
+                          onChange={handleImageUpload}
+                          disabled={uploadingImages}
+                        />
+                      </label>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Images */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
-            {product.images.map((image, index) => (
-              <div key={index} className="relative">
-                <img
-                  src={image}
-                  alt={`Product ${index + 1}`}
-                  className="w-full h-32 object-cover rounded-lg"
+          {/* Sizes */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-300">Sizes</h3>
+              <button
+                type="button"
+                onClick={addSize}
+                className="text-[#A6FFCB] hover:text-[#12D8FA] transition-colors font-medium text-sm"
+              >
+                Add Size
+              </button>
+            </div>
+            {product.sizes.map((size, index) => (
+              <div key={index} className="flex gap-4 items-center mb-3">
+                <input
+                  type="text"
+                  value={size.size}
+                  onChange={(e) => {
+                    const newSizes = [...product.sizes];
+                    newSizes.find((_, i) => i === index).size = e.target.value;
+                    setProduct(prev => ({ ...prev, sizes: newSizes }));
+                  }}
+                  placeholder="Size (e.g., S, M, L)"
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                />
+                <input
+                  type="number"
+                  value={size.countInStock}
+                  onChange={(e) => {
+                    const newSizes = [...product.sizes];
+                    newSizes.find((_, i) => i === index).countInStock = parseInt(e.target.value);
+                    setProduct(prev => ({ ...prev, sizes: newSizes }));
+                  }}
+                  placeholder="Stock"
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                  min="0"
                 />
                 <button
                   type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                  onClick={() => removeSize(index)}
+                  className="text-red-600 hover:text-red-700 transition-colors"
                 >
-                  <FaTimes />
+                  <FaTimes className="h-4 w-4" />
                 </button>
               </div>
             ))}
           </div>
-          <div className="flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
-            <div className="space-y-1 text-center">
-              {uploadingImages ? (
-                <Loader size="sm" />
-              ) : (
-                <>
-                  <FaUpload className="mx-auto h-12 w-12 text-gray-400" />
-                  <div className="flex text-sm text-gray-600">
-                    <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500">
-                      <span>Upload images</span>
-                      <input
-                        type="file"
-                        className="sr-only"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        disabled={uploadingImages}
-                      />
-                    </label>
-                  </div>
-                  <p className="text-xs text-gray-500">PNG, JPG up to 5MB</p>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
 
-        {/* Sizes */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-gray-700">Sizes</label>
-            <button
-              type="button"
-              onClick={addSize}
-              className="text-primary-600 hover:text-primary-500"
-            >
-              Add Size
-            </button>
-          </div>
-          {product.sizes.map((size, index) => (
-            <div key={index} className="flex gap-4 items-center mb-2">
-              <input
-                type="text"
-                value={size.size}
-                onChange={(e) => {
-                  const newSizes = [...product.sizes];
-                  newSizes[index].size = e.target.value;
-                  setProduct(prev => ({ ...prev, sizes: newSizes }));
-                }}
-                placeholder="Size"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              />
-              <input
-                type="number"
-                value={size.countInStock}
-                onChange={(e) => {
-                  const newSizes = [...product.sizes];
-                  newSizes[index].countInStock = parseInt(e.target.value);
-                  setProduct(prev => ({ ...prev, sizes: newSizes }));
-                }}
-                placeholder="Stock"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-                min="0"
-              />
+          {/* Colors */}
+          <div>
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold text-gray-300">Colors</h3>
               <button
                 type="button"
-                onClick={() => removeSize(index)}
-                className="text-red-500 hover:text-red-600"
+                onClick={addColor}
+                className="text-[#A6FFCB] hover:text-[#12D8FA] transition-colors font-medium text-sm"
               >
-                <FaTimes />
+                Add Color
               </button>
             </div>
-          ))}
-        </div>
+            {product.colors.map((color, index) => (
+              <div key={index} className="flex gap-4 items-center mb-3">
+                <input
+                  type="text"
+                  value={color.color}
+                  onChange={(e) => {
+                    const newColors = [...product.colors];
+                    newColors.find((_, i) => i === index).color = e.target.value;
+                    setProduct(prev => ({ ...prev, colors: newColors }));
+                  }}
+                  placeholder="Color Name (e.g., Red, Blue)"
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-full sm:text-sm border-gray-700 rounded-md bg-gray-800 text-white"
+                />
+                <input
+                  type="color"
+                  value={color.colorCode}
+                  onChange={(e) => {
+                    const newColors = [...product.colors];
+                    newColors.find((_, i) => i === index).colorCode = e.target.value;
+                    setProduct(prev => ({ ...prev, colors: newColors }));
+                  }}
+                  className="shadow-sm focus:ring-[#12D8FA] focus:border-[#12D8FA] block w-14 h-10 rounded-md border border-gray-700 cursor-pointer bg-gray-800"
+                />
+                <button
+                  type="button"
+                  onClick={() => removeColor(index)}
+                  className="text-red-600 hover:text-red-700 transition-colors"
+                >
+                  <FaTimes className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+          </div>
 
-        {/* Colors */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-gray-700">Colors</label>
+          {/* Featured Toggle */}
+          <div className="pt-4 border-t border-gray-800">
+            <div className="flex items-center justify-between">
+              <label htmlFor="featured" className="block text-sm font-medium text-gray-400">
+                Featured Product
+              </label>
+              <input
+                id="featured"
+                type="checkbox"
+                checked={product.featured}
+                onChange={(e) => setProduct(prev => ({ ...prev, featured: e.target.checked }))}
+                className="h-5 w-5 text-[#A6FFCB] focus:ring-[#12D8FA] border-gray-700 rounded-md bg-gray-800 cursor-pointer shadow-sm"
+              />
+            </div>
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="mt-8 flex justify-end gap-4">
             <button
               type="button"
-              onClick={addColor}
-              className="text-primary-600 hover:text-primary-500"
+              onClick={() => navigate('/seller/dashboard')}
+              className="bg-gray-700 text-gray-100 px-6 py-3 rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors font-semibold"
             >
-              Add Color
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-gradient-to-r from-[#1FA2FF] via-[#12D8FA] to-[#A6FFCB] text-gray-900 px-6 py-3 rounded-md font-bold hover:from-[#A6FFCB] hover:to-[#1FA2FF] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#1FA2FF] transition-all duration-300"
+              disabled={loading || uploadingImages}
+            >
+              {loading ? 'Saving...' : (id ? 'Update Product' : 'Create Product')}
             </button>
           </div>
-          {product.colors.map((color, index) => (
-            <div key={index} className="flex gap-4 items-center mb-2">
-              <input
-                type="text"
-                value={color.color}
-                onChange={(e) => {
-                  const newColors = [...product.colors];
-                  newColors[index].color = e.target.value;
-                  setProduct(prev => ({ ...prev, colors: newColors }));
-                }}
-                placeholder="Color Name"
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
-              />
-              <input
-                type="color"
-                value={color.colorCode}
-                onChange={(e) => {
-                  const newColors = [...product.colors];
-                  newColors[index].colorCode = e.target.value;
-                  setProduct(prev => ({ ...prev, colors: newColors }));
-                }}
-                className="mt-1 block w-14 h-10"
-              />
-              <button
-                type="button"
-                onClick={() => removeColor(index)}
-                className="text-red-500 hover:text-red-600"
-              >
-                <FaTimes />
-              </button>
-            </div>
-          ))}
-        </div>
-
-        {/* Featured Toggle */}
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            checked={product.featured}
-            onChange={(e) => setProduct(prev => ({ ...prev, featured: e.target.checked }))}
-            className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-          />
-          <label className="ml-2 block text-sm text-gray-900">
-            Featured Product
-          </label>
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-end gap-4">
-          <button
-            type="button"
-            onClick={() => navigate('/seller/dashboard')}
-            className="bg-gray-200 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="bg-primary-600 text-white px-4 py-2 rounded-md hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-            disabled={loading || uploadingImages}
-          >
-            {loading ? 'Saving...' : (id ? 'Update Product' : 'Create Product')}
-          </button>
-        </div>
+        </form>
       </div>
-    </form>
+    </div>
   );
 };
 
