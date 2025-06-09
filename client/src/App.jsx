@@ -19,8 +19,6 @@ import PrivateRoute from "./components/routing/PrivateRoute";
 import SellerRoute from "./components/routing/SellerRoute";
 import WishlistPage from "./pages/WishlistPage";
 import "./App.css";
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const { loadUser } = useAuth();
@@ -127,18 +125,6 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-       <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="dark"
-      />
       <Footer />
     </div>
   );
