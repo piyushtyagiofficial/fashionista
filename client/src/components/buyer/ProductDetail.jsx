@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useCart } from "../../context/cart/CartContext";
+import { useAuth } from "../../context/auth/AuthContext";
 import { FaShoppingCart, FaStar } from "react-icons/fa";
 import Loader from "../common/Loader";
 import ProductReviews from "./ProductReviews";
@@ -9,13 +10,19 @@ import api from "../../utils/api";
 
 const ProductDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { user } = useAuth();
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
   const [quantity, setQuantity] = useState(1);
   const [mainImage, setMainImage] = useState("");
+
+  // Check if current user is a buyer
+  const isBuyer = user?.role === 'buyer';
+  const isSeller = user?.role === 'seller';
 
   const fetchProduct = async () => {
     try {
@@ -42,6 +49,16 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = async () => {
+    // Prevent sellers from adding to cart
+    if (!isBuyer) {
+      if (isSeller) {
+        toast.error("Sellers cannot add products to cart. Switch to buyer account to purchase items.");
+      } else {
+        toast.error("Please login as a buyer to add items to cart");
+      }
+      return;
+    }
+
     if (!selectedSize || !selectedColor) {
       toast.error("Please select size and color");
       return;
@@ -70,7 +87,7 @@ const ProductDetail = () => {
       qty: quantity,
       seller: product.seller._id || product.seller,
     });
-    toast.success('Added to cart successfully!'); // Added toast for success
+    toast.success('Added to cart successfully!');
   };
 
   const handleReviewAdded = () => {
@@ -88,6 +105,15 @@ const ProductDetail = () => {
   return (
     <div className="min-h-screen bg-black py-12 px-4">
       <div className="max-w-7xl mx-auto bg-gray-900 rounded-xl shadow-xl p-8 md:p-12 text-gray-200">
+        {/* Show role-specific message for sellers */}
+        {isSeller && (
+          <div className="mb-6 p-4 bg-yellow-900/20 border border-yellow-600/30 rounded-lg">
+            <p className="text-yellow-400 text-center font-medium">
+              You are viewing this as a seller. Switch to a buyer account to purchase items.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
           {/* Product Images */}
           <div className="space-y-6">
@@ -105,8 +131,8 @@ const ProductDetail = () => {
                   onClick={() => setMainImage(image)}
                   className={`aspect-w-1 aspect-h-1 rounded-md overflow-hidden focus:outline-none transition ring-offset-2 ring-offset-black ${
                     mainImage === image
-                      ? 'ring-4 ring-cyan-500' // Selected image ring
-                      : 'ring-transparent hover:ring-2 hover:ring-cyan-400' // Hover effect
+                      ? 'ring-4 ring-cyan-500'
+                      : 'ring-transparent hover:ring-2 hover:ring-cyan-400'
                   }`}
                 >
                   <img
@@ -134,7 +160,7 @@ const ProductDetail = () => {
                     className={
                       i < Math.floor(product.rating)
                         ? 'text-yellow-400'
-                        : 'text-gray-700' // Changed for dark background
+                        : 'text-gray-700'
                     }
                   />
                 ))}
@@ -165,13 +191,13 @@ const ProductDetail = () => {
                   <button
                     key={size.size}
                     onClick={() => setSelectedSize(size.size)}
-                    disabled={size.countInStock === 0}
+                    disabled={size.countInStock === 0 || !isBuyer}
                     className={`py-3 px-6 rounded-lg font-semibold transition-colors duration-300 focus:outline-none ${
-                      size.countInStock === 0
+                      size.countInStock === 0 || !isBuyer
                         ? 'opacity-40 cursor-not-allowed bg-gray-700 text-gray-500'
                         : selectedSize === size.size
-                        ? 'bg-cyan-600 text-white shadow-lg' // Selected color
-                        : 'bg-gray-800 text-gray-200 hover:bg-gray-700' // Default and hover colors
+                        ? 'bg-[#12D8FA] text-white shadow-lg'
+                        : 'bg-gray-800 text-gray-200 hover:bg-gray-700'
                     }`}
                   >
                     {size.size}
@@ -190,11 +216,14 @@ const ProductDetail = () => {
                   <button
                     key={color.color}
                     onClick={() => setSelectedColor(color.color)}
+                    disabled={!isBuyer}
                     title={color.color}
                     className={`w-full h-12 rounded-lg border-2 transition-shadow duration-300 focus:outline-none ${
-                      selectedColor === color.color
-                        ? 'ring-4 ring-cyan-400 shadow-lg' // Selected color ring
-                        : 'ring-0 border-gray-700' // Default border
+                      !isBuyer
+                        ? 'opacity-40 cursor-not-allowed'
+                        : selectedColor === color.color
+                        ? 'ring-4 ring-cyan-400 shadow-lg'
+                        : 'ring-0 border-gray-700'
                     }`}
                     style={{ backgroundColor: color.colorCode }}
                   />
@@ -202,57 +231,77 @@ const ProductDetail = () => {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-2">Quantity</h3>
-              <div className="flex items-center space-x-5">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-white"
-                  disabled={quantity <= 1}
-                >
-                  -
-                </button>
-                <span className="text-xl font-semibold">{quantity}</span>
-                <button
-                  onClick={() => {
-                    if (quantity < maxQuantity) {
-                      setQuantity(quantity + 1);
-                    } else {
-                      toast.error(`Only ${maxQuantity} items available in stock`);
-                    }
-                  }}
-                  className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-white"
-                  disabled={quantity >= maxQuantity}
-                >
-                  +
-                </button>
+            {isBuyer && (
+              <div>
+                <h3 className="text-xl font-semibold text-white mb-2">Quantity</h3>
+                <div className="flex items-center space-x-5">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-white"
+                    disabled={quantity <= 1}
+                  >
+                    -
+                  </button>
+                  <span className="text-xl font-semibold">{quantity}</span>
+                  <button
+                    onClick={() => {
+                      if (quantity < maxQuantity) {
+                        setQuantity(quantity + 1);
+                      } else {
+                        toast.error(`Only ${maxQuantity} items available in stock`);
+                      }
+                    }}
+                    className="p-3 rounded-lg bg-gray-800 hover:bg-gray-700 transition text-white"
+                    disabled={quantity >= maxQuantity}
+                  >
+                    +
+                  </button>
+                </div>
+                {selectedSizeData && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    {Math.max(0, selectedSizeData.countInStock)} items available
+                  </p>
+                )}
               </div>
-              {selectedSizeData && (
-                <p className="text-sm text-gray-500 mt-2">
-                  {Math.max(0, selectedSizeData.countInStock)} items available
-                </p>
-              )}
-            </div>
+            )}
 
-            <button
-              onClick={handleAddToCart}
-              disabled={!selectedSize || !selectedColor || maxQuantity === 0}
-              className="w-full flex items-center justify-center space-x-4 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-4 rounded-xl shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <FaShoppingCart size={22} />
-              <span className="text-lg">
-                {maxQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
-              </span>
-            </button>
+            {isBuyer ? (
+              <button
+                onClick={handleAddToCart}
+                disabled={!selectedSize || !selectedColor || maxQuantity === 0}
+                className="w-full flex items-center justify-center space-x-4 bg-[#12D8FA] hover:bg-[#1FA2FF] text-white font-bold py-4 rounded-xl shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <FaShoppingCart size={22} />
+                <span className="text-lg">
+                  {maxQuantity <= 0 ? 'Out of Stock' : 'Add to Cart'}
+                </span>
+              </button>
+            ) : (
+              <div className="w-full p-4 bg-gray-800 border border-gray-600 rounded-xl text-center">
+                <p className="text-gray-400 mb-2">
+                  {isSeller 
+                    ? "Switch to buyer account to purchase items" 
+                    : "Login as buyer to add items to cart"}
+                </p>
+                {!user && (
+                  <button
+                    onClick={() => navigate('/login')}
+                    className="bg-[#12D8FA] hover:bg-[#1FA2FF] text-white font-bold py-2 px-6 rounded-lg transition"
+                  >
+                    Login
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Reviews Section */}
-        {/* Assuming ProductReviews component itself will adapt to dark theme or needs similar styling updates */}
+        {/* Reviews Section - Only buyers can add reviews */}
         <ProductReviews
           productId={product._id}
           reviews={product.reviews}
           onReviewAdded={handleReviewAdded}
+          canReview={isBuyer}
         />
       </div>
     </div>

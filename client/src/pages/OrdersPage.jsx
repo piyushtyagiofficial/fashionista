@@ -129,9 +129,8 @@ const OrdersPage = () => {
             <h1 className="text-2xl font-bold text-gray-400">
               {user?.role === "seller" ? "Manage Orders" : "My Orders"}
             </h1>
-
             <div className="relative w-full max-w-xs">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400" />
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#12D8FA]" />
               <input
                 type="text"
                 placeholder="Search orders..."
@@ -195,12 +194,12 @@ const OrdersPage = () => {
                           className="flex items-center justify-center text-primary-400 hover:text-primary-600 transition duration-200"
                           title="View Details"
                         >
-                          <FaEye className="w-5 h-5" />
+                          <FaEye className="w-5 h-5 text-[#12D8FA]" />
                         </button>
 
                         <button
                           onClick={() => downloadPDF(order)}
-                          className="flex items-center gap-1 bg-primary-600 hover:bg-primary-700 text-white px-3 py-1 rounded-md text-xs sm:text-sm transition duration-200"
+                          className="flex items-center gap-1 bg-gradient-to-r from-[#1FA2FF] via-[#12D8FA] to-[#A6FFCB] text-gray-900 rounded-lg font-bold hover:from-[#A6FFCB] hover:to-[#1FA2FF] text-white px-3 py-1 rounded-md text-xs sm:text-sm transition duration-200"
                           title="Download PDF"
                         >
                           <FaDownload className="w-4 h-4" />

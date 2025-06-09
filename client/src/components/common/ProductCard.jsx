@@ -21,9 +21,23 @@ const ProductCard = ({ product }) => {
   );
   const [isHovered, setIsHovered] = useState(false);
 
+  // Check if current user is a buyer (only buyers can add to cart)
+  const isBuyer = user?.role === 'buyer';
+  const isSeller = user?.role === 'seller';
+
   const handleAddToCart = async (e) => {
     e.preventDefault();
     e.stopPropagation();
+
+    // Prevent sellers from adding to cart
+    if (!isBuyer) {
+      if (isSeller) {
+        toast.error("Sellers cannot add products to cart. Switch to buyer account to purchase items.");
+      } else {
+        toast.error("Please login as a buyer to add items to cart");
+      }
+      return;
+    }
 
     if (!selectedSize || !selectedColor) {
       toast.error("Please select size and color");
@@ -52,7 +66,7 @@ const ProductCard = ({ product }) => {
     };
 
     await addToCart(cartItem);
-    toast.success("Added to cart successfully!"); // Added toast for success
+    toast.success("Added to cart successfully!");
   };
 
   const toggleWishlist = async (e) => {
@@ -61,6 +75,14 @@ const ProductCard = ({ product }) => {
 
     if (!isAuthenticated) {
       toast.error("Please login to add items to wishlist");
+      return;
+    }
+
+    // Only buyers can use wishlist
+    if (!isBuyer) {
+      if (isSeller) {
+        toast.error("Sellers cannot use wishlist. Switch to buyer account to save items.");
+      }
       return;
     }
 
@@ -112,7 +134,8 @@ const ProductCard = ({ product }) => {
             </div>
           )}
 
-          {isAuthenticated && user.role === "buyer" && (
+          {/* Only show wishlist button for authenticated buyers */}
+          {isAuthenticated && isBuyer && (
             <button
               onClick={toggleWishlist}
               className="absolute top-2 right-2 bg-white p-2 rounded-full shadow-md hover:bg-primary-main hover:text-white transition-colors z-10"
@@ -138,7 +161,8 @@ const ProductCard = ({ product }) => {
             )}
           </div>
 
-          {isHovered && hasStock && (
+          {/* Only show add to cart overlay for buyers with stock available */}
+          {isHovered && hasStock && isBuyer && (
             <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 p-3 transform transition-transform duration-300 space-y-2">
               <div className="flex justify-between items-center mb-2">
                 <div className="flex gap-1">
@@ -188,10 +212,28 @@ const ProductCard = ({ product }) => {
               <button
                 onClick={handleAddToCart}
                 disabled={!selectedSize || !selectedColor || !hasStock}
-                className="bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 w-full flex items-center justify-center gap-2 add-to-cart-btn disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-[#12D8FA] hover:bg-[#1FA2FF] text-white font-semibold py-3 px-6 rounded-lg transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-gray-800 w-full flex items-center justify-center gap-2 add-to-cart-btn disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <FaShoppingCart /> Add to Cart
               </button>
+            </div>
+          )}
+
+          {/* Show message for sellers when they hover */}
+          {isHovered && isSeller && (
+            <div className="absolute bottom-0 left-0 right-0 bg-gray-800 bg-opacity-90 p-3 transform transition-transform duration-300">
+              <p className="text-white text-sm text-center">
+                Switch to buyer account to purchase items
+              </p>
+            </div>
+          )}
+
+          {/* Show login message for non-authenticated users */}
+          {isHovered && !isAuthenticated && hasStock && (
+            <div className="absolute bottom-0 left-0 right-0 bg-gray-800 bg-opacity-90 p-3 transform transition-transform duration-300">
+              <p className="text-white text-sm text-center">
+                Login as buyer to add to cart
+              </p>
             </div>
           )}
         </div>
@@ -241,6 +283,13 @@ const ProductCard = ({ product }) => {
           {!hasStock && (
             <p className="text-red-500 text-sm mt-1 font-medium">
               Out of Stock
+            </p>
+          )}
+
+          {/* Show role-specific messages */}
+          {isSeller && (
+            <p className="text-yellow-500 text-xs mt-1 font-medium">
+              Seller view - Switch to buyer account to purchase
             </p>
           )}
         </div>
