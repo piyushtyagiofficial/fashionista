@@ -19,13 +19,25 @@ Fashionista is a sleek and user-centric full-stack e-commerce platform designed 
 
 ---
 
-## Screenshots
+## Sign Up
 
-- [Sign Up Screenshot](https://drive.google.com/uc?export=view&id=17nhsI7Vs7bEgsKBYa4A8DFohQW43g12B)
-- [Log In Screenshot](https://drive.google.com/uc?export=view&id=1qjbMZowOjg4XNYgVi2S-EPM0hfqdsbKQ)
-- [Home Screenshot](https://drive.google.com/uc?export=view&id=1Kf3mcxM7ZC60JUP-BJTdBT9Yt-mgO07l)
-- [User Dashboard Screenshot](https://drive.google.com/uc?export=view&id=1Eh0wVuh8Kz3zxy1Cl_wwLR7XTPiEDG5C)
-- [Seller Dashboard Screenshot](https://drive.google.com/uc?export=view&id=1u3mX0EhMLYWP1p2Nllv1nZu5gKaPl_6x)
+![Sign Up Screenshot](https://drive.google.com/uc?export=view&id=17nhsI7Vs7bEgsKBYa4A8DFohQW43g12B)
+
+## Log In
+
+![Log In Screenshot](https://drive.google.com/uc?export=view&id=1qjbMZowOjg4XNYgVi2S-EPM0hfqdsbKQ)
+
+## Home
+
+![Home Screenshot](https://drive.google.com/uc?export=view&id=1Kf3mcxM7ZC60JUP-BJTdBT9Yt-mgO07l)
+
+## Dashboard (User)
+
+![User Dashboard Screenshot](https://drive.google.com/uc?export=view&id=1Eh0wVuh8Kz3zxy1Cl_wwLR7XTPiEDG5C)
+
+## Dashboard (Seller)
+
+![Seller Dashboard Screenshot](https://drive.google.com/uc?export=view&id=1u3mX0EhMLYWP1p2Nllv1nZu5gKaPl_6x)
 
 ---
 
