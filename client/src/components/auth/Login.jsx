@@ -77,6 +77,7 @@ const Login = () => {
               type="email"
               id="email"
               name="email"
+              autoComplete="email"
               value={email}
               onChange={handleChange}
               placeholder="Your email address"
@@ -95,6 +96,7 @@ const Login = () => {
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
+                autoComplete="current-password"
                 value={password}
                 onChange={handleChange}
                 placeholder="Your password"
@@ -114,6 +116,8 @@ const Login = () => {
           <div className="flex items-center justify-between text-sm text-gray-400">
             <div className="flex items-center">
               <input
+                name="remember"
+                autoComplete='off'
                 type="checkbox"
                 id="remember"
                 className="mr-2 rounded text-[#12D8FA] focus:ring-[#12D8FA]"

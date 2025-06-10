@@ -1,10 +1,11 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+import jwt from "jsonwebtoken";
+import User from "../models/User.js";
+import { sendWelcomeEmail } from "../config/email.js";
 
 // Generate JWT
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: "30d",
   });
 };
 
@@ -13,7 +14,6 @@ const generateToken = (id) => {
 // @access  Public
 export const registerUser = async (req, res) => {
   try {
-    console.log('Registering user:', req.body);
     const { name, email, password, role } = req.body;
 
     // Check if user exists
@@ -21,7 +21,7 @@ export const registerUser = async (req, res) => {
 
     if (userExists) {
       res.status(400);
-      throw new Error('User already exists');
+      throw new Error("User already exists");
     }
 
     // Create user
@@ -29,10 +29,21 @@ export const registerUser = async (req, res) => {
       name,
       email,
       password,
-      role: role || 'buyer',
+      role: role || "buyer",
     });
 
     if (user) {
+      // Send welcome email
+      try {
+        await sendWelcomeEmail({
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        });
+      } catch (emailError) {
+        console.error("Failed to send welcome email:", emailError);
+        // Don't fail registration if email fails
+      }
       res.status(201).json({
         _id: user._id,
         name: user.name,
@@ -42,7 +53,7 @@ export const registerUser = async (req, res) => {
       });
     } else {
       res.status(400);
-      throw new Error('Invalid user data');
+      throw new Error("Invalid user data");
     }
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -70,7 +81,7 @@ export const loginUser = async (req, res) => {
       });
     } else {
       res.status(401);
-      throw new Error('Invalid email or password');
+      throw new Error("Invalid email or password");
     }
   } catch (error) {
     res.status(401).json({ message: error.message });
@@ -97,7 +108,7 @@ export const getUserProfile = async (req, res) => {
       });
     } else {
       res.status(404);
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -136,7 +147,7 @@ export const updateUserProfile = async (req, res) => {
       });
     } else {
       res.status(404);
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -149,18 +160,18 @@ export const updateUserProfile = async (req, res) => {
 export const addToWishlist = async (req, res) => {
   try {
     const { productId } = req.body;
-    
+
     const user = await User.findById(req.user._id);
 
     if (!user) {
       res.status(404);
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     // Check if product is already in wishlist
     if (user.wishlist.includes(productId)) {
       res.status(400);
-      throw new Error('Product already in wishlist');
+      throw new Error("Product already in wishlist");
     }
 
     user.wishlist.push(productId);
@@ -168,7 +179,7 @@ export const addToWishlist = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: 'Product added to wishlist',
+      message: "Product added to wishlist",
       wishlist: user.wishlist,
     });
   } catch (error) {
@@ -182,23 +193,21 @@ export const addToWishlist = async (req, res) => {
 export const removeFromWishlist = async (req, res) => {
   try {
     const productId = req.params.productId;
-    
+
     const user = await User.findById(req.user._id);
 
     if (!user) {
       res.status(404);
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
-    user.wishlist = user.wishlist.filter(
-      (id) => id.toString() !== productId
-    );
-    
+    user.wishlist = user.wishlist.filter((id) => id.toString() !== productId);
+
     await user.save();
 
     res.status(200).json({
       success: true,
-      message: 'Product removed from wishlist',
+      message: "Product removed from wishlist",
       wishlist: user.wishlist,
     });
   } catch (error) {
@@ -211,11 +220,11 @@ export const removeFromWishlist = async (req, res) => {
 // @access  Private
 export const getWishlist = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).populate('wishlist');
+    const user = await User.findById(req.user._id).populate("wishlist");
 
     if (!user) {
       res.status(404);
-      throw new Error('User not found');
+      throw new Error("User not found");
     }
 
     res.status(200).json({

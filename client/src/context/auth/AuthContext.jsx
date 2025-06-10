@@ -200,7 +200,6 @@ export const AuthProvider = ({ children }) => {
           }
         }
       );
-      console.log('Wishlist response:', response.data);
       return response.data;
     } catch (error) {
       setError(error.response?.data?.message || 'Failed to fetch wishlist');

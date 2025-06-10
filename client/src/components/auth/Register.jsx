@@ -90,6 +90,7 @@ const Register = () => {
               type="text"
               id="name"
               name="name"
+              autoComplete="name"
               value={name}
               onChange={handleChange}
               placeholder="Your full name"
@@ -107,6 +108,7 @@ const Register = () => {
               type="email"
               id="email"
               name="email"
+              autoComplete="email"
               value={email}
               onChange={handleChange}
               placeholder="Your email address"
@@ -125,6 +127,7 @@ const Register = () => {
                 type={showPassword ? 'text' : 'password'}
                 id="password"
                 name="password"
+                autoComplete="new-password"
                 value={password}
                 onChange={handleChange}
                 placeholder="Create a password"
@@ -151,6 +154,7 @@ const Register = () => {
               type={showPassword ? 'text' : 'password'}
               id="password2"
               name="password2"
+              autoComplete="new-password"
               value={password2}
               onChange={handleChange}
               placeholder="Confirm your password"
@@ -172,6 +176,7 @@ const Register = () => {
                 <input
                   type="radio"
                   name="role"
+                  autoComplete='off'
                   value="buyer"
                   checked={role === 'buyer'}
                   onChange={handleChange}
@@ -190,6 +195,7 @@ const Register = () => {
                 <input
                   type="radio"
                   name="role"
+                  autoComplete='off'
                   value="seller"
                   checked={role === 'seller'}
                   onChange={handleChange}
@@ -205,6 +211,8 @@ const Register = () => {
             <input
               type="checkbox"
               id="terms"
+              name="terms"
+              autoComplete='off'
               required
               className="mr-2 rounded-md border-gray-700 bg-[#1f1f1f] focus:ring-[#12D8FA]"
             />

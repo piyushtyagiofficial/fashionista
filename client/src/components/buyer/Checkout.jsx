@@ -62,8 +62,6 @@ function Checkout() {
 
   const updateProductStock = async () => {
     try {
-      console.log('Starting stock update for cart items:', cartItems);
-
       // Group cart items by product ID and aggregate quantities by size
       const productUpdates = {};
 
@@ -72,7 +70,6 @@ function Checkout() {
         const size = item.size;
         const quantity = item.qty;
 
-        console.log(`Processing item: ${item.name}, Size: ${size}, Qty: ${quantity}`);
 
         if (!productUpdates[productId]) {
           productUpdates[productId] = {};
@@ -86,7 +83,6 @@ function Checkout() {
         productUpdates[productId][size] += quantity;
       });
 
-      console.log('Grouped product updates:', productUpdates);
 
       // Update stock for each product
       const updatePromises = Object.entries(productUpdates).map(([productId, sizeQuantities]) => {
@@ -95,14 +91,10 @@ function Checkout() {
           quantity: totalQuantity
         }));
 
-        console.log(`Updating stock for product ${productId}:`, purchasedSizes);
-
         return api.put(`/products/${productId}/stock`, { purchasedSizes });
       });
 
       await Promise.all(updatePromises);
-      console.log('Stock updated successfully for all products');
-
     } catch (error) {
       console.error('Failed to update stock:', error);
       // Don't throw error here as payment was successful
@@ -140,8 +132,6 @@ function Checkout() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_signature: response.razorpay_signature,
             });
-
-            console.log('Payment verified successfully, now updating stock...');
 
             // Update product stock ONLY after successful payment verification
             await updateProductStock();
@@ -210,8 +200,6 @@ function Checkout() {
         }
       }
 
-      console.log('Creating order with cart items:', cartItems);
-
       const orderData = {
         orderItems: cartItems.map((item) => ({
           name: item.name,
@@ -231,10 +219,7 @@ function Checkout() {
         totalPrice: cartTotal + cartTotal * 0.1,
       };
 
-      console.log('Order data being sent:', orderData);
-
       const response = await api.post("/orders", orderData);
-      console.log('Order created successfully:', response.data._id);
 
       await handlePayment(response.data._id);
     } catch (err) {
@@ -291,6 +276,7 @@ function Checkout() {
                 type="text"
                 id="address"
                 name="address"
+                autoComplete="address"
                 value={shippingInfo.address}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
@@ -308,6 +294,7 @@ function Checkout() {
                   type="text"
                   id="city"
                   name="city"
+                  autoComplete="address-level2"
                   value={shippingInfo.city}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
@@ -324,6 +311,7 @@ function Checkout() {
                   type="text"
                   id="postalCode"
                   name="postalCode"
+                  autoComplete="postal-code"
                   value={shippingInfo.postalCode}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
@@ -341,6 +329,7 @@ function Checkout() {
                 type="text"
                 id="country"
                 name="country"
+                autoComplete="country"
                 value={shippingInfo.country}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"

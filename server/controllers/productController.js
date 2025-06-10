@@ -116,7 +116,6 @@ export const updateProductStock = async (req, res) => {
     const productId = req.params.id;
     const { purchasedSizes } = req.body;
 
-    console.log(`Updating stock for product ${productId}:`, purchasedSizes);
 
     if (!productId || !Array.isArray(purchasedSizes)) {
       return res.status(400).json({ message: 'Invalid input data' });
@@ -128,13 +127,10 @@ export const updateProductStock = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    console.log('Current product sizes before update:', product.sizes);
 
     // Update stock for each purchased size
     for (const item of purchasedSizes) {
       const { size, quantity } = item;
-
-      console.log(`Processing size: ${size}, quantity: ${quantity}`);
 
       if (!size || !quantity || quantity <= 0) {
         return res.status(400).json({ message: 'Invalid size or quantity' });
@@ -145,8 +141,6 @@ export const updateProductStock = async (req, res) => {
       if (!sizeObj) {
         return res.status(400).json({ message: `Size ${size} not found in product.` });
       }
-
-      console.log(`Current stock for size ${size}: ${sizeObj.countInStock}`);
 
       if (sizeObj.countInStock < quantity) {
         return res.status(400).json({ 
@@ -162,14 +156,9 @@ export const updateProductStock = async (req, res) => {
         sizeObj.countInStock = 0;
       }
 
-      console.log(`Updated stock for size ${size}: ${sizeObj.countInStock}`);
     }
 
     await product.save();
-
-    console.log('Product sizes after update:', product.sizes);
-    console.log(`Stock update completed for product ${productId}`);
-
     res.status(200).json({
       message: 'Stock updated successfully',
       updatedSizes: purchasedSizes,

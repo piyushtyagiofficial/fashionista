@@ -24,7 +24,7 @@ const app = express();
 app.use(express.json()); // Enable JSON body parsing
 app.use(express.urlencoded({ extended: true })); // Enable URL-encoded body parsing
 app.use(cors({
-  origin: 'https://fashionista-8ky2.vercel.app', // Replace with your frontend URL
+  origin: `${process.env.FRONTEND_URL}`, // Replace with your frontend URL
   credentials: true, // if you need cookies or auth headers
 }));
 
