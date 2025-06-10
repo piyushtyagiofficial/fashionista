@@ -39,7 +39,9 @@ Fashionista is a sleek and user-centric full-stack e-commerce platform designed 
 
 ![Seller Dashboard Screenshot](https://drive.google.com/uc?export=view&id=1u3mX0EhMLYWP1p2Nllv1nZu5gKaPl_6x)
 
+
 ---
+
 
 ## Environment Variables Setup
 
