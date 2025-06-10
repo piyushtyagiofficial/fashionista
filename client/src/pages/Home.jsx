@@ -217,7 +217,7 @@ const Home = () => {
                   collection.
                 </p>
                 <Link
-                  to="/products?category=summer"
+                  to="/products"
                   className="inline-block bg-white text-black px-8 py-4 rounded-md text-lg font-medium hover:bg-gray-200 transition-colors"
                 >
                   Shop Now
@@ -247,7 +247,7 @@ const Home = () => {
                   accessories.
                 </p>
                 <Link
-                  to="/products?category=premium"
+                  to="/products"
                   className="inline-block bg-white text-black px-8 py-4 rounded-md text-lg font-medium hover:bg-gray-200 transition-colors"
                 >
                   Explore
@@ -400,7 +400,7 @@ const Home = () => {
                     Get up to 50% off on selected items. Limited time offer!
                   </p>
                   <Link
-                    to="/products?discount=true"
+                    to="/products"
                     className="inline-block bg-white text-black px-8 py-4 rounded-md text-lg font-extrabold hover:bg-gray-200 transition-colors font-serif"
                   >
                     Shop Now

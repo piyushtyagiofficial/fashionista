@@ -47,6 +47,22 @@ const ProductForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    // Validate colors - ensure all colors have both name and color code
+    const invalidColors = product.colors.filter(color => !color.color.trim() || !color.colorCode.trim());
+    if (invalidColors.length > 0) {
+      toast.error('Please provide both color name and color code for all colors');
+      setLoading(false);
+      return;
+    }
+
+    // Validate sizes - ensure all sizes have name and stock count
+    const invalidSizes = product.sizes.filter(size => !size.size.trim() || size.countInStock === '');
+    if (invalidSizes.length > 0) {
+      toast.error('Please provide both size name and stock count for all sizes');
+      setLoading(false);
+      return;
+    }
+
     try {
       const method = id ? 'put' : 'post';
       const url = id ? `/products/${id}` : '/products';
@@ -115,7 +131,7 @@ const ProductForm = () => {
   const addSize = () => {
     setProduct(prev => ({
       ...prev,
-      sizes: [...prev.sizes, { size: '', countInStock: 0 }]
+      sizes: [...prev.sizes, { size: '', countInStock: '' }] // Changed from 0 to empty string
     }));
   };
 
@@ -129,7 +145,7 @@ const ProductForm = () => {
   const addColor = () => {
     setProduct(prev => ({
       ...prev,
-      colors: [...prev.colors, { color: '', colorCode: '' }]
+      colors: [...prev.colors, { color: '', colorCode: '#000000' }] // Set default color code
     }));
   };
 
@@ -267,6 +283,7 @@ const ProductForm = () => {
               {product.images.map((image, index) => (
                 <div key={index} className="relative rounded-md overflow-hidden">
                   <img
+                    required
                     src={image}
                     alt={`Product ${index + 1}`}
                     className="w-full h-32 object-cover border border-gray-700"
@@ -337,7 +354,7 @@ const ProductForm = () => {
                   value={size.countInStock}
                   onChange={(e) => {
                     const newSizes = [...product.sizes];
-                    newSizes.find((_, i) => i === index).countInStock = parseInt(e.target.value);
+                    newSizes.find((_, i) => i === index).countInStock = e.target.value === '' ? '' : parseInt(e.target.value);
                     setProduct(prev => ({ ...prev, sizes: newSizes }));
                   }}
                   placeholder="Stock"

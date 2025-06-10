@@ -27,6 +27,29 @@ function Checkout() {
     }));
   };
 
+  const validateShippingInfo = () => {
+    const { address, city, postalCode, country } = shippingInfo;
+    
+    if (!address.trim()) {
+      toast.error("Please enter your address");
+      return false;
+    }
+    if (!city.trim()) {
+      toast.error("Please enter your city");
+      return false;
+    }
+    if (!postalCode.trim()) {
+      toast.error("Please enter your postal code");
+      return false;
+    }
+    if (!country.trim()) {
+      toast.error("Please enter your country");
+      return false;
+    }
+    
+    return true;
+  };
+
   const initializeRazorpay = () => {
     return new Promise((resolve) => {
       const script = document.createElement("script");
@@ -160,6 +183,11 @@ function Checkout() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Validate shipping information first
+    if (!validateShippingInfo()) {
+      return;
+    }
+
     try {
       setLoading(true);
       setError(null);
@@ -257,7 +285,7 @@ function Checkout() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="address" className="block text-sm font-medium text-gray-400 mb-2">
-                Street Address
+                Street Address <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -266,6 +294,7 @@ function Checkout() {
                 value={shippingInfo.address}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
+                placeholder="Enter your street address"
                 required
               />
             </div>
@@ -273,7 +302,7 @@ function Checkout() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <label htmlFor="city" className="block text-sm font-medium text-gray-400 mb-2">
-                  City
+                  City <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -282,13 +311,14 @@ function Checkout() {
                   value={shippingInfo.city}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
+                  placeholder="Enter your city"
                   required
                 />
               </div>
 
               <div>
                 <label htmlFor="postalCode" className="block text-sm font-medium text-gray-400 mb-2">
-                  Postal Code
+                  Postal Code <span className="text-red-400">*</span>
                 </label>
                 <input
                   type="text"
@@ -297,6 +327,7 @@ function Checkout() {
                   value={shippingInfo.postalCode}
                   onChange={handleInputChange}
                   className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
+                  placeholder="Enter postal code"
                   required
                 />
               </div>
@@ -304,7 +335,7 @@ function Checkout() {
 
             <div>
               <label htmlFor="country" className="block text-sm font-medium text-gray-400 mb-2">
-                Country
+                Country <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -313,6 +344,7 @@ function Checkout() {
                 value={shippingInfo.country}
                 onChange={handleInputChange}
                 className="mt-1 block w-full rounded-md border-gray-700 bg-gray-800 text-white shadow-sm focus:border-[#12D8FA] focus:ring-[#12D8FA] placeholder-gray-500 p-3"
+                placeholder="Enter your country"
                 required
               />
             </div>
